@@ -13,6 +13,12 @@ fig, ax = plt.subplots()
 
 
 # Funktionen
+# Gauss Funktion
+def g1(x, a1, x1, o1, c, m):
+    g1= a1/(o1*(2*np.pi)**(1/2))*np.exp(-(x-x1)**2/(2*o1)**2)
+    return g1 + c + m*x
+
+# Double Gauss Funktion
 def g2(x, a1, x1, o1, a2, x2, o2, c, m):
     g1= a1/(o1*(2*np.pi)**(1/2))*np.exp(-(x-x1)**2/(2*o1)**2)
     g2 = a2/(o2*(2*np.pi)**(1/2))*np.exp(-(x-x2)**2/(2*o2)**2)
