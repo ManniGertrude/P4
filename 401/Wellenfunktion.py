@@ -32,10 +32,6 @@ def WF(n, l, m, a0_scale_factor):
     return psi
 
 
-def calc_WD(psi):
-    return np.abs(psi) ** 2
-
-
 def WD(n, l, m, a0_scale_factor, colormap='rocket'):
     
     sns.color_palette(colormap)
@@ -56,7 +52,7 @@ def WD(n, l, m, a0_scale_factor, colormap='rocket'):
 
 
     psi = WF(n, l, m, a0_scale_factor)
-    prob_density = calc_WD(psi)
+    prob_density = np.abs(psi) ** 2
     im = ax.imshow(np.sqrt(prob_density).T, cmap=sns.color_palette(colormap, as_cmap=True))
     cbar = plt.colorbar(im, fraction=0.046, pad=0.03)
     cbar.set_ticks([])
