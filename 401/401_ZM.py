@@ -109,7 +109,7 @@ plt.title(f'Intensität in Abhängigkeit des Winkels für verschiedene Magnetfel
 plt.grid()
 plt.ylabel('Intensität $I$ /A')
 plt.xlabel('Winkel $\\alpha$ /°')
-plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
+plt.savefig(f'{input_dir}\\Output\\ZM\\Alle.pdf')
 plt.cla()
 
 
