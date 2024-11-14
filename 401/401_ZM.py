@@ -72,44 +72,44 @@ for i in range(len(e)):
                      linestyle='none', label=f'Datenpunkte {e_Names[i]}', zorder = 1, alpha = 0.8)
 yDiff = polyfit(xdata, *popts[0]) - polyfit(xdata, *popts[1])
 yValues = 0.5*polyfit(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), *popts[0])+ 0.5*polyfit(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), *popts[1])
-# plt.plot(xdata, yDiff, color = ColorTable[3],
-#             label=f'Differenz der Polynome ', zorder = 1)
-# plt.plot(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), yValues, color = ColorTable[9],
-#             label=f'Mittel der Polynome ', zorder = 1)
-# plt.grid()
-# plt.ylabel('Magnetfeld $B$ / mT')
-# plt.xlabel('Anodenstrom $I$ / A')
-# plt.title('Magnetfeld in Abhängigkeit des Stroms')
-# plt.legend()
-# plt.savefig(f'{input_dir}\\Output\\ZM\\BFeld.pdf')
-# plt.cla()
+plt.plot(xdata, yDiff, color = ColorTable[3],
+            label=f'Differenz der Polynome ', zorder = 1)
+plt.plot(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), yValues, color = ColorTable[9],
+            label=f'Mittel der Polynome ', zorder = 1)
+plt.grid()
+plt.ylabel('Magnetfeld $B$ / mT')
+plt.xlabel('Stromstärke $I$ / A')
+plt.title('Magnetfeld in Abhängigkeit des Stroms')
+plt.legend()
+plt.savefig(f'{input_dir}\\Output\\ZM\\BFeld.pdf')
+plt.cla()
 
 
-# # Intensitäten einzeln
-# for i in range(len(f)):
-#     data = read_csv_input(f[i], 0, 0)
-#     xdata = np.asarray(data['a'], dtype=np.float64)
-#     ydata = np.asarray(data['I1'], dtype=np.float64)
-#     plt.plot(xdata, ydata, color=ColorTable[i], label=f'{f[i][-5]}')
-#     plt.title(f'Intensität in Abhängigkeit des Winkels für {yValues[i]:.0f} mT')
-#     plt.grid()
-#     plt.ylabel('Intensität $I$ /A')
-#     plt.xlabel('Winkel $\\alpha$ /°')
-#     plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
-#     plt.cla()
+# Intensitäten einzeln
+for i in range(len(f)):
+    data = read_csv_input(f[i], 0, 0)
+    xdata = np.asarray(data['a'], dtype=np.float64)
+    ydata = np.asarray(data['I1'], dtype=np.float64)
+    plt.plot(xdata, ydata, color=ColorTable[i], label=f'{f[i][-5]}')
+    plt.title(f'Intensität in Abhängigkeit des Winkels für {yValues[i]:.0f} mT')
+    plt.grid()
+    plt.ylabel('Intensität $I$ /A')
+    plt.xlabel('Winkel $\\alpha$ /°')
+    plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
+    plt.cla()
     
-# # Intensitäten zusammen
-# for i in range(len(f)):
-#     data = read_csv_input(f[i], 0, 0)
-#     xdata = np.asarray(data['a'], dtype=np.float64)
-#     ydata = np.asarray(data['I1'], dtype=np.float64)
-#     plt.plot(xdata, ydata, color=ColorTable[i], label=f'{yValues[i]:.0f} mT')
-# plt.legend()
-# plt.title(f'Intensität in Abhängigkeit des Winkels für verschiedene Magnetfelder')
-# plt.grid()
-# plt.ylabel('Intensität $I$ /A')
-# plt.xlabel('Winkel $\\alpha$ /°')
-# plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
+# Intensitäten zusammen
+for i in range(len(f)):
+    data = read_csv_input(f[i], 0, 0)
+    xdata = np.asarray(data['a'], dtype=np.float64)
+    ydata = np.asarray(data['I1'], dtype=np.float64)
+    plt.plot(xdata, ydata, color=ColorTable[i], label=f'{yValues[i]:.0f} mT')
+plt.legend()
+plt.title(f'Intensität in Abhängigkeit des Winkels für verschiedene Magnetfelder')
+plt.grid()
+plt.ylabel('Intensität $I$ /A')
+plt.xlabel('Winkel $\\alpha$ /°')
+plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
 plt.cla()
 
 
