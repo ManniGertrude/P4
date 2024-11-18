@@ -48,21 +48,21 @@ def individual_gaus(data, Name):
         Print = Print.replace('.', ',')
         # print(Print)
         plt.plot(xdata_filtered, gaus_sep(xdata_filtered, *popt), color = ColorTable[i],
-                label=f'Gaus {i+1} mit $\chi^2/ndf$ = {chi_ndf:.2f} ', zorder = 10)
+                label=f'Gaus {i+1} mit $\chi^2/ndf$ = {chi_ndf:.2f} ', zorder = 100)
     plt.errorbar(xdata, ydata, xerr=xerr, yerr= yerr, color='black', marker='o',markersize =1, 
-                     linestyle='none', label='Datenpunkte', zorder = 1, alpha = 0.8)
+                     linestyle='none', label='Datenpunkte', zorder = 1, alpha = 1)
     # print(max)
     bottom, top = plt.ylim()
     plt.ylim(bottom, top*1.2)
     if Name[0] == 'U':
-        plt.title(f'Anodenstrom bei $U_G={Name[-3:]}$V, $T=165$°C')
+        plt.title(f'Anodenstrom bei $U_G={Name[-3:]}$V, $T=165$°C' , fontsize = 14)
     elif Name[0] == 'T':
-        plt.title(f'Anodenstrom bei $U_G=2,7$V, $T={Name[-3:]}$°C')
+        plt.title(f'Anodenstrom bei $U_G=2,7$V, $T={Name[-3:]}$°C' , fontsize = 14)
     plt.xlim(-0.5, 40.5)
-    plt.xlabel('Beschleunigungsspannung $U_{B}$ /V')
-    plt.ylabel('Anodenstrom $I_{A}$ /A')
-    plt.legend()
+    plt.xlabel('Beschleunigungsspannung $U_{B}$ / V', fontsize = 12)
+    plt.ylabel('Anodenstrom $I_{A}$ / A', fontsize = 12)
     plt.grid()
+    plt.legend()
     plt.show
     plt.savefig(f'{input_dir}\\Output\\FH\\{Name}.pdf')
     plt.cla()
@@ -77,7 +77,7 @@ f = ["Data\\Tconst_165\\U2_2.0.csv",
      "Data\\Uconst_2.7\\T_175.csv", 
      "Data\\Uconst_2.7\\T_180.csv"]
 
-ColorTable = ['crimson','darkgoldenrod','olive', 'green', 'darkcyan',
+ColorTable = ['crimson','darkgoldenrod','limegreen', 'green', 'darkcyan',
               'slateblue', 'orchid', 'deeppink', 'purple', 'black']
 NameList = ["U2_2,0", "U2_2,7", "U2_3,4", "U2_4,0","T_165", "T_170", "T_175", "T_180"]
 Namen = ['U = 2,0V', 'U = 2,7V', 'U = 3,4V', 'U = 4,0V', 'T = 165°C', 'T = 170°C', 'T = 175°C', 'T = 180°C']
@@ -106,11 +106,11 @@ for i in range(8):
         plt.errorbar(max[6*i:6*i+6], may[6*i:6*i+6], xerr=maxerr[6*i:6*i+6], yerr=mayerr[6*i:6*i+6],
                     marker = '.', label=f'Maxima für $T =$ {NameList[i][-3:]} °C', zorder = 20, color = ColorTable[i])
 
-plt.xlabel('Beschleunigungsspannung $U_{B}$ /V')
-plt.ylabel('Anodenstrom $I_{A}$ /A')
+plt.xlabel('Beschleunigungsspannung $U_{B}$ / V', fontsize = 12)
+plt.ylabel('Anodenstrom $I_{A}$ / A', fontsize = 12)
 plt.legend()
 plt.grid()
-plt.title('Maxima der Gaußfunktionen')
+plt.title('Maxima der Gaußfunktionen', fontsize = 14)
 plt.show
 plt.savefig(f'{input_dir}\\Output\\FH\\Maxima.pdf')
 plt.cla()
@@ -142,10 +142,10 @@ for i in range(8):
     print(Print)
     plt.errorbar(i, Sum, yerr=SumErr, capsize=2, marker = 'o', color = 'black')
 plt.xticks([0.25, 1.25, 2.25, 3.25, 4.25, 5.25, 6.25, 7.25], Namen, rotation = 20)
-plt.xlabel('Messreihe')
-plt.ylabel('Differenz der Maxima / V')
+plt.xlabel('Messreihe', fontsize = 12)
+plt.ylabel('Differenz der Maxima / V', fontsize = 12)
 plt.grid()
-plt.title('Normierte Maxima der Gaußfunktionen')
+plt.title('Normierte Maxima der Gaußfunktionen', fontsize = 14)
 plt.show
 plt.savefig(f'{input_dir}\\Output\\FH\\NormMaxima.pdf')
 plt.cla()
@@ -162,9 +162,9 @@ for i in range(4):
     plt.errorbar(xdata, ydata, xerr = xerr, yerr= yerr, marker='o',markersize =1, color=ColorTable[i], label=f'Daten bei $U_B$ = {NameList[i][-3:]}°C')
 plt.xlim(-0.5, 40.5)
 plt.grid()
-plt.title(f'Variation der Gegenspannung bei $T=165$°C')
-plt.xlabel('Beschleunigungsspannung $U_{B}$ /V')
-plt.ylabel('Anodenstrom $I_{A}$ /A')
+plt.title(f'Variation der Gegenspannung bei $T=165$°C', fontsize = 14)
+plt.xlabel('Beschleunigungsspannung $U_{B}$ / V', fontsize = 12)
+plt.ylabel('Anodenstrom $I_{A}$ / A', fontsize = 12)
 plt.legend()
 plt.savefig(f'{input_dir}\\Output\\FH\\U_Var.pdf')
 plt.cla()
@@ -179,9 +179,9 @@ for i in range(4, 8):
     plt.errorbar(xdata, ydata, yerr= yerr, marker='o',markersize =1, color=ColorTable[i-4], label=f'Daten bei T = {NameList[i][-3:]}°C')
 plt.xlim(-0.5, 40.5)
 plt.grid()
-plt.title(f'Variation der Temperatur bei $U_G$ = 2,7 V')
-plt.xlabel('Beschleunigungsspannung $U_{B}$ /V')
-plt.ylabel('Anodenstrom $I_{A}$ /A')
+plt.title(f'Variation der Temperatur bei $U_G$ = 2,7 V', fontsize = 14)
+plt.xlabel('Beschleunigungsspannung $U_{B}$ / V', fontsize = 12)
+plt.ylabel('Anodenstrom $I_{A}$ / A', fontsize = 12)
 plt.legend()
 plt.savefig(f'{input_dir}\\Output\\FH\\T_Var.pdf')
 plt.cla()
