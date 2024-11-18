@@ -93,7 +93,7 @@ plt.plot(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), yValues, color = ColorTable[9
             label=f'Mittel der Polynome ', zorder = 1)
 plt.grid()
 plt.ylabel('Magnetfeld $B$ / mT', fontsize = 12)
-plt.xlabel('Stromstärke $I$ / nA', fontsize = 12)
+plt.xlabel('Stromstärke $I$ / A', fontsize = 12)
 plt.title('Magnetfeld in Abhängigkeit des Stroms', fontsize = 14)
 plt.legend()
 plt.savefig(f'{input_dir}\\Output\\ZM\\BFeld.pdf')
@@ -108,7 +108,7 @@ for i in range(len(f)):
     plt.plot(xdata, ydata, color=ColorTable[i], label=f'{f[i][-5]}')
     plt.title(f'Intensität in Abh des Winkels für {yValues[i]:.0f} mT', fontsize = 14)
     plt.grid()
-    plt.ylabel('Intensität $I$ / nA', fontsize = 12)
+    plt.ylabel('rel. Intensität $I$ in %', fontsize = 12)
     plt.xlabel('Winkel $\\alpha$ / °', fontsize = 12)
     plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
     plt.cla()
@@ -122,7 +122,7 @@ for i in range(len(f)):
 plt.legend()
 plt.grid()
 plt.title(f'Intensität in Abh. des Winkels für verschiedene Magnetfelder', fontsize = 14)
-plt.ylabel('Intensität $I$ / nA', fontsize=12)
+plt.ylabel('rel. Intensität $I$ in %', fontsize=12)
 plt.xlabel('Winkel $\\alpha$ / °', fontsize=12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\Alle.pdf')
 plt.cla()
@@ -199,7 +199,7 @@ for i in range(len(f)):
     plt.legend( loc='upper right')
     plt.title(f'Intensität in Abh. des Winkels für verschiedene Magnetfelder', fontsize = 14)
     plt.grid()
-    plt.ylabel('Intensität $I$ / nA', fontsize = 12)
+    plt.ylabel('rel. Intensität $I$ in %', fontsize = 12)
     plt.xlabel('Winkel $\\alpha$ / °', fontsize = 12)
     plt.savefig(f'{input_dir}\\Output\\ZM\\Peak_{f[i][-5]}A.pdf')
     plt.cla()
@@ -215,8 +215,8 @@ xErr = []
 for i in BFeld:
     xErr.append(i*0.025)
 
-plt.errorbar(BFeld, Position1, xerr=xErr, yerr=Position1Err,    color = 'red',linestyle ='-', label =f'$|\mu_2 - \mu 1|$', zorder = 10, alpha = 0.7) 
-plt.errorbar(BFeld, Position2, xerr=xErr, yerr=Position2Err,    color = 'blue',linestyle ='-', label =f'$|\mu_2 - \mu 3|$', zorder = 10, alpha = 0.7)
+plt.errorbar(BFeld, Position1, xerr=xErr, yerr=Position1Err,    color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu 1|$', zorder = 10, alpha = 0.7) 
+plt.errorbar(BFeld, Position2, xerr=xErr, yerr=Position2Err,    color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu 3|$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld, Position1, p0=[1, 1], sigma=np.asarray(Position1Err), absolute_sigma=True, maxfev=10000)
 popt2, pcov2 = curve_fit(lin, BFeld, Position2, p0=[1, 1], sigma=np.asarray(Position2Err), absolute_sigma=True, maxfev=10000)
 perr1 = np.sqrt(np.diag(pcov1))
@@ -257,8 +257,10 @@ Position1 = Position1[5:]
 Position2 = Position2[4:]
 Position1Err = Position1Err[5:]
 Position2Err = Position2Err[4:]
-plt.errorbar(BFeld1, Position1, yerr=Position1Err,    color = 'red',linestyle ='-', label =f'$|\mu_2 - \mu 1|$', zorder = 10, alpha = 0.7) 
-plt.errorbar(BFeld2, Position2, yerr=Position2Err,    color = 'blue',linestyle ='-', label =f'$|\mu_2 - \mu 3|$', zorder = 10, alpha = 0.7)
+xErr1 = xErr[5:]
+xErr2 = xErr[4:]
+plt.errorbar(BFeld1, Position1, yerr=Position1Err, xerr=xErr1, color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu 1|$', zorder = 10, alpha = 0.7) 
+plt.errorbar(BFeld2, Position2, yerr=Position2Err, xerr=xErr2, color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu 3|$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld1, Position1, p0=[1, 1], sigma=np.asarray(Position1Err), absolute_sigma=True, maxfev=10000)
 popt2, pcov2 = curve_fit(lin, BFeld2, Position2, p0=[1, 1], sigma=np.asarray(Position2Err), absolute_sigma=True, maxfev=10000)
 perr1 = np.sqrt(np.diag(pcov1))
