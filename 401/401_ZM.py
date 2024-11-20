@@ -180,6 +180,10 @@ Position1 = []
 Position2 = []
 Position1Err = []
 Position2Err = []
+dEp = []
+dEpErr = []
+dEm = []
+dEmErr = []
 for i in range(len(f)):
     data = read_csv_input(f[i], 0, 0)
     xdata = np.asarray(data['a'], dtype=np.float64)
@@ -192,7 +196,7 @@ for i in range(len(f)):
     ydatapre = g3(xdata_f, *popt)
     chisq = np.sum(((ydata_f-ydatapre)**2)/(abs(ydata_f)*0.01)**2)
     chi_ndf = chisq/(len(xdata_f)-5)
-    # Print = f'{popt[0]:.3f} $\pm$ {perr[0]:.3f} & {popt[1]:.3f} $\pm$ {perr[1]:.3f} & {popt[2]:.3f} $\pm$ {perr[2]:.3f} & {popt[3]:.3f} $\pm$ {perr[3]:.3f} & {popt[4]:.3f} $\pm$ {perr[4]:.3f} & {popt[5]:.3f} $\pm$ {perr[5]:.3f} & {popt[6]:.3f} $\pm$ {perr[6]:.3f} & {popt[7]:.3f} $\pm$ {perr[7]:.3f} & {popt[8]:.3f} $\pm$ {perr[8]:.3f} & {popt[9]:.3f} $\pm$ {perr[9]:.3f} & {popt[10]:.3f} $\pm$ {perr[10]:.3f} & {chisq:.3f} & {chi_ndf:.3f} \\\\'
+    # Print = f'{popt[0]:.3f} $\pm$ {perr[0]:.3f} & {popt[1]:.3f} $\pm$ {perr[1]:.3f} & {popt[2]:.3f} $\pm$ {perr[2]:.3f} \\\\ {popt[3]:.3f} $\pm$ {perr[3]:.3f} & {popt[4]:.3f} $\pm$ {perr[4]:.3f} & {popt[5]:.3f} $\pm$ {perr[5]:.3f} \\\\ {popt[6]:.3f} $\pm$ {perr[6]:.3f} & {popt[7]:.3f} $\pm$ {perr[7]:.3f} & {popt[8]:.3f} $\pm$ {perr[8]:.3f} \\\\ {popt[9]:.3f} $\pm$ {perr[9]:.3f} & {popt[10]:.3f} $\pm$ {perr[10]:.3f} & {chi_ndf:.3f} \\\\'
     # Print = Print.replace('.', ',')
     # print(Print)
     plt.plot(xdata_f, g3(xdata_f, *popt), color = 'red',linestyle ='-', label =f'Anpassungskurve', zorder = 10, alpha = 0.6) 
@@ -207,16 +211,19 @@ for i in range(len(f)):
     Position1Err.append(np.sqrt(perr[4]**2 + perr[1]**2))
     Position2.append(-popt[4]+popt[7])
     Position2Err.append(np.sqrt(perr[4]**2 + perr[7]**2))
-    
+    dEp.append(1.986e-25*(8e-3*np.cos(popt[1]) - 8e-3*np.cos(popt[4]))/(8e-3*np.cos(popt[4]) * 8e-3*np.cos(popt[1])))
+    dEm.append(1.986e-25*(8e-3*np.cos(popt[7]) - 8e-3*np.cos(popt[4]))/(8e-3*np.cos(popt[4]) * 8e-3*np.cos(popt[7])))
+    dEpErr.append(np.sqrt((1.986e-25*np.cos(popt[1])*perr[1]/(8e-3*np.sin(popt[1])**2))**2 + (1.986e-25*np.cos(popt[4]*perr[4])/(np.sin(popt[4])**2))**2 ))
+    dEmErr.append(np.sqrt((1.986e-25*np.cos(popt[7])*perr[7]/(8e-3*np.sin(popt[7])**2))**2 + (1.986e-25*np.cos(popt[4]*perr[4])/(np.sin(popt[4])**2))**2 ))
     # Position1.append(f'{(popt[4] - popt[1]):.5f} $\pm$ {(np.sqrt(perr[4]**2 + perr[1]**2)):.5f} ')
     # Position2.append(f'{(popt[7] - popt[4]):.5f} $\pm$ {(np.sqrt(perr[7]**2 + perr[4]**2)):.5f} ')
-BFeld = np.array([0, 58, 129, 202, 272, 333, 382, 421, 450, 475])
+BFeld = np.array([0, 58, 129, 202, 272, 333, 382, 421, 450, 475])*0.001
 xErr = []
 for i in BFeld:
     xErr.append(i*0.025)
 
-plt.errorbar(BFeld, Position1, xerr=xErr, yerr=Position1Err,    color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu 1|$', zorder = 10, alpha = 0.7) 
-plt.errorbar(BFeld, Position2, xerr=xErr, yerr=Position2Err,    color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu 3|$', zorder = 10, alpha = 0.7)
+plt.errorbar(BFeld, Position1, xerr=xErr, yerr=Position1Err,    color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu_1|$', zorder = 10, alpha = 0.7) 
+plt.errorbar(BFeld, Position2, xerr=xErr, yerr=Position2Err,    color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu_3|$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld, Position1, p0=[1, 1], sigma=np.asarray(Position1Err), absolute_sigma=True, maxfev=10000)
 popt2, pcov2 = curve_fit(lin, BFeld, Position2, p0=[1, 1], sigma=np.asarray(Position2Err), absolute_sigma=True, maxfev=10000)
 perr1 = np.sqrt(np.diag(pcov1))
@@ -231,8 +238,8 @@ Print1 = f'{popt1[0]} $\pm$ {perr1[0]} & {popt1[1]} $\pm$ {perr1[1]} & {chisq1} 
 Print2 = f'{popt2[0]} $\pm$ {perr2[0]} & {popt2[1]} $\pm$ {perr2[1]} & {chisq2} & {chi_ndf2} \\\\'
 Print1 = Print1.replace('.', ',')
 Print2 = Print2.replace('.', ',')
-print(Print1)
-print(Print2)
+# print(Print1)
+# print(Print2)
 plt.plot(BFeld, lin(BFeld, *popt1), color = 'red',
         label =f'$|\mu_2 - \mu 1|$ Anpassung', zorder = 10)
 plt.plot(BFeld, lin(BFeld, *popt2), color = 'blue',
@@ -241,26 +248,58 @@ plt.legend()
 plt.title(f'Aufspaltung der Maxima in Abhängigkeit des Magnetfeldes', fontsize = 14)
 plt.grid()
 plt.ylabel('Aufspaltung $\\Delta \\alpha$ / °', fontsize = 12)
-plt.xlabel('Magnetfeld $B$ / mT', fontsize = 12)
+plt.xlabel('Magnetfeld $B$ / T', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\AufspaltungZuBFeld.pdf')
 plt.cla()
 
-
+plt.errorbar(BFeld, dEp, yerr=dEpErr, xerr=xErr, color = 'red',linestyle ='none', label =f'$\\Delta E_-$', zorder = 10, alpha = 0.7) 
+plt.errorbar(BFeld, dEm, yerr=dEmErr, xerr=xErr, color = 'blue',linestyle ='none', label =f'$\\Delta E_+$', zorder = 10, alpha = 0.7)
+popt1, pcov1 = curve_fit(lin, BFeld, dEp, p0=[1, 1], sigma=np.asarray(dEpErr), absolute_sigma=True, maxfev=10000)
+popt2, pcov2 = curve_fit(lin, BFeld, dEm, p0=[1, 1], sigma=np.asarray(dEmErr), absolute_sigma=True, maxfev=10000)
+perr1 = np.sqrt(np.diag(pcov1))
+perr2 = np.sqrt(np.diag(pcov2))
+ydatapre1 = lin(BFeld, *popt1)
+ydatapre2 = lin(BFeld, *popt2)
+chisq1 = np.sum(((dEp-ydatapre1)**2)/np.asarray(dEpErr)**2)
+chisq2 = np.sum(((dEm-ydatapre2)**2)/np.asarray(dEmErr)**2)
+chi_ndf1 = chisq1/(len(BFeld)-2)
+chi_ndf2 = chisq2/(len(BFeld)-2)
+Print1 = f'{popt1[0]} $\pm$ {perr1[0]} & {popt1[1]} $\pm$ {perr1[1]} & {chisq1} & {chi_ndf1} \\\\'
+Print2 = f'{popt2[0]} $\pm$ {perr2[0]} & {popt2[1]} $\pm$ {perr2[1]} & {chisq2} & {chi_ndf2} \\\\'
+Print1 = Print1.replace('.', ',')
+Print2 = Print2.replace('.', ',')
+# print(Print1)
+# print(Print2)
+plt.plot(BFeld, lin(BFeld, *popt1), color = 'red',
+        label =f'$|\\Delta E_-|$ Anpassung', zorder = 10)
+plt.plot(BFeld, lin(BFeld, *popt2), color = 'blue',
+        label =f'$|\\Delta E_+|$ Anpassung', zorder = 10)
+plt.legend()
+plt.title(f'Aufspaltung der Energie in Abhängigkeit des Magnetfeldes', fontsize = 14)
+plt.grid()
+plt.ylabel('Aufspaltung $\\Delta E$ / J', fontsize = 12)
+plt.xlabel('Magnetfeld $B$ / T', fontsize = 12)
+plt.savefig(f'{input_dir}\\Output\\ZM\\DeltaEZuBFeld.pdf')
+plt.cla()
 
 
 
 # Nochmal aber mit Filter
 
-BFeld1 = np.array([333, 382, 421, 450, 475])
-BFeld2 = np.array([272, 333, 382, 421, 450, 475])
+BFeld1 = np.array([333, 382, 421, 450, 475])*0.001
+BFeld2 = np.array([272, 333, 382, 421, 450, 475])*0.001
 Position1 = Position1[5:]
 Position2 = Position2[4:]
 Position1Err = Position1Err[5:]
 Position2Err = Position2Err[4:]
+dEm = dEm[4:]
+dEp = dEp[5:]
+dEmErr = dEmErr[4:]
+dEpErr = dEpErr[5:]
 xErr1 = xErr[5:]
 xErr2 = xErr[4:]
-plt.errorbar(BFeld1, Position1, yerr=Position1Err, xerr=xErr1, color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu 1|$', zorder = 10, alpha = 0.7) 
-plt.errorbar(BFeld2, Position2, yerr=Position2Err, xerr=xErr2, color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu 3|$', zorder = 10, alpha = 0.7)
+plt.errorbar(BFeld1, Position1, yerr=Position1Err, xerr=xErr1, color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu_1|$', zorder = 10, alpha = 0.7) 
+plt.errorbar(BFeld2, Position2, yerr=Position2Err, xerr=xErr2, color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu_3|$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld1, Position1, p0=[1, 1], sigma=np.asarray(Position1Err), absolute_sigma=True, maxfev=10000)
 popt2, pcov2 = curve_fit(lin, BFeld2, Position2, p0=[1, 1], sigma=np.asarray(Position2Err), absolute_sigma=True, maxfev=10000)
 perr1 = np.sqrt(np.diag(pcov1))
@@ -275,8 +314,8 @@ Print1 = f'{popt1[0]} $\pm$ {perr1[0]} & {popt1[1]} $\pm$ {perr1[1]} & {chisq1} 
 Print2 = f'{popt2[0]} $\pm$ {perr2[0]} & {popt2[1]} $\pm$ {perr2[1]} & {chisq2} & {chi_ndf2} \\\\'
 Print1 = Print1.replace('.', ',')
 Print2 = Print2.replace('.', ',')
-print(Print1)
-print(Print2)
+# print(Print1)
+# print(Print2)
 plt.plot(BFeld1, lin(BFeld1, *popt1), color = 'red',
         label =f'$|\mu_2 - \mu 1|$ Anpassung', zorder = 10)
 plt.plot(BFeld2, lin(BFeld2, *popt2), color = 'blue',
@@ -285,12 +324,43 @@ plt.legend()
 plt.title(f'Aufspaltung der Maxima in Abhängigkeit des Magnetfeldes', fontsize = 14)
 plt.grid()
 plt.ylabel('Aufspaltung $\\Delta \\alpha$ / °', fontsize = 12)
-plt.xlabel('Magnetfeld $B$ / mT', fontsize = 12)
+plt.xlabel('Magnetfeld $B$ / T', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\AufspaltungZuBFeld_Filter.pdf')
 plt.cla()
 
 
-    
+plt.errorbar(BFeld1, dEp, yerr=dEpErr, xerr=xErr1, color = 'red',linestyle ='none', label =f'$\\Delta E_- Datenpunkte$', zorder = 10, alpha = 0.7) 
+plt.errorbar(BFeld2, dEm, yerr=dEmErr, xerr=xErr2, color = 'blue',linestyle ='none', label =f'$\\Delta E_+ Datenpunkte$', zorder = 10, alpha = 0.7)
+popt1, pcov1 = curve_fit(lin, BFeld1, dEp, p0=[1, 1], sigma=np.asarray(dEpErr), absolute_sigma=True, maxfev=10000)
+popt2, pcov2 = curve_fit(lin, BFeld2, dEm, p0=[1, 1], sigma=np.asarray(dEmErr), absolute_sigma=True, maxfev=10000)
+perr1 = np.sqrt(np.diag(pcov1))
+perr2 = np.sqrt(np.diag(pcov2))
+ydatapre1 = lin(BFeld1, *popt1)
+ydatapre2 = lin(BFeld2, *popt2)
+chisq1 = np.sum(((dEp-ydatapre1)**2)/np.asarray(dEpErr)**2)
+chisq2 = np.sum(((dEm-ydatapre2)**2)/np.asarray(dEmErr)**2)
+chi_ndf1 = chisq1/(len(BFeld1)-2)
+chi_ndf2 = chisq2/(len(BFeld2)-2)
+Print1 = f'{popt1[0]} $\pm$ {perr1[0]} & {popt1[1]} $\pm$ {perr1[1]} & {chisq1} & {chi_ndf1} \\\\'
+Print2 = f'{popt2[0]} $\pm$ {perr2[0]} & {popt2[1]} $\pm$ {perr2[1]} & {chisq2} & {chi_ndf2} \\\\'
+Print1 = Print1.replace('.', ',')
+Print2 = Print2.replace('.', ',')
+# print(Print1)
+# print(Print2)
+plt.plot(BFeld1, lin(BFeld1, *popt1), color = 'red',
+        label =f'$\\Delta E_-$ Anpassung', zorder = 10)
+plt.plot(BFeld2, lin(BFeld2, *popt2), color = 'blue',
+        label =f'$\\Delta E_+$ Anpassung', zorder = 10)
+plt.legend()
+plt.title(f'Aufspaltung der Energie in Abhängigkeit des Magnetfeldes', fontsize = 14)
+plt.grid()
+plt.ylabel('Aufspaltung $ \\Delta E$ / J', fontsize = 12)
+plt.xlabel('Magnetfeld $B$ / T', fontsize = 12)
+plt.savefig(f'{input_dir}\\Output\\ZM\\DeltaEZuBFeld_Filter.pdf')
+plt.cla()
+
+ 
+ 
 
 
 
@@ -355,6 +425,7 @@ Abstand[27] = 0.4
 
 Finesse = []
 FinesseErr = []
+FinesseErr2 = []
 for i in range(len(xk)-1):
     p0 = [1/xk[i]**2, xk[i], 1/200, 6]
     GrenzeUnten = xk[i] - Abstand[i]*0.4
@@ -362,7 +433,9 @@ for i in range(len(xk)-1):
     xdata_f = xdata[np.where((xdata > GrenzeUnten) & (xdata < GrenzeOben))]
     ydata_f = ydata[np.where((xdata > GrenzeUnten) & (xdata < GrenzeOben))]
     yerr_f = yerr[np.where((xdata > GrenzeUnten) & (xdata < GrenzeOben))]
-    popt, pcov = curve_fit(g1, xdata_f, ydata_f, p0=p0, bounds=([0, GrenzeUnten, 0, 0], [100, GrenzeOben, 1/10, 6]), sigma=yerr_f, absolute_sigma=True, maxfev=1e9)
+    popt, pcov = curve_fit(g1, xdata_f, ydata_f, p0=p0, 
+                           bounds=([0, GrenzeUnten, 0, 0], [100, GrenzeOben, 1/5, 10]), 
+                           sigma=yerr_f, absolute_sigma=True, maxfev=1e12)
     perr = np.sqrt(np.diag(pcov))
     ydatapre = g1(xdata_f, *popt)
     chisq = np.sum(((ydata_f-ydatapre)**2)/(abs(ydata_f)*0.01)**2)
@@ -372,6 +445,7 @@ for i in range(len(xk)-1):
     # print(Print)
     Finesse.append(Abstand[i]/(2*np.sqrt(2*np.log(2))*popt[2]))
     FinesseErr.append(Abstand[i]*perr[2]/(2*np.sqrt(2*np.log(2))*popt[2]**2))
+    FinesseErr2.append(Abstand[i]*perr[1]/(2*np.sqrt(2*np.log(2))*popt[2]))
     
     plt.plot(xdata_f, g1(xdata_f, *popt), color = 'red',linestyle ='-', zorder = 10, alpha = 0.5) 
 plt.errorbar(xdata, ydata, yerr=yerr, color = 'black')
@@ -381,7 +455,8 @@ plt.grid()
 plt.ylabel('Intensität $I$ / nA', fontsize = 12)
 plt.xlabel('Winkel $\\alpha$ /°', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\Gausfits.pdf')
+plt.show
 plt.cla()
-print(np.mean(Finesse))
-print(np.sqrt(np.std(Finesse)**2 + np.mean(FinesseErr)**2))
-print(len(Finesse))
+# print(Finesse, FinesseErr)
+# print(np.mean(Finesse))
+# print(np.sqrt(np.std(Finesse)**2 + np.mean(FinesseErr)**2 + np.mean(FinesseErr2)**2))
