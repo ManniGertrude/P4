@@ -4,18 +4,19 @@ import numpy as np
 import os
 import pandas as pd
 
+# Systenpfad
 input_dir = os.path.dirname(os.path.abspath(__file__))
 
-
+# Einlesen der Daten
 def read_csv_input(test):
     data = pd.read_csv(f'{input_dir}\\{test}', sep="\t", header=0).astype(np.float64)
     return data
 
-
+# Gaußfunktion
 def gaus_sep(x, a,o,m, k):
     return a/(o*(2*np.pi)**(1/2))*np.exp(-(x-m)**2/(2*o)**2) + k
 
-
+# Einzelne Gaußfunktionen aus Daten extrahieren, anpassen und plotten
 def individual_gaus(data, Name):
     xdata = np.asarray(data['U_B'], dtype=np.float64)
     ydata = np.asarray(data['U_A'], dtype=np.float64)
@@ -66,7 +67,8 @@ def individual_gaus(data, Name):
     plt.show
     plt.savefig(f'{input_dir}\\Output\\FH\\{Name}.pdf')
     plt.cla()
-    
+
+
 ax, fig = plt.subplots()
 f = ["Data\\Tconst_165\\U2_2.0.csv", 
      "Data\\Tconst_165\\U2_2.7.csv", 
@@ -77,10 +79,13 @@ f = ["Data\\Tconst_165\\U2_2.0.csv",
      "Data\\Uconst_2.7\\T_175.csv", 
      "Data\\Uconst_2.7\\T_180.csv"]
 
+# Farbpalette weil richtig und wichtig
 ColorTable = ['crimson','darkgoldenrod','limegreen', 'green', 'darkcyan',
               'slateblue', 'orchid', 'deeppink', 'purple', 'black']
 NameList = ["U2_2,0", "U2_2,7", "U2_3,4", "U2_4,0","T_165", "T_170", "T_175", "T_180"]
 Namen = ['U = 2,0V', 'U = 2,7V', 'U = 3,4V', 'U = 4,0V', 'T = 165°C', 'T = 170°C', 'T = 175°C', 'T = 180°C']
+
+# Listen für die Maxima und die Fehler
 max = []
 may = []
 maxerr = []
@@ -97,7 +102,7 @@ for i in range(len(f)):
     data = read_csv_input(f[i])
     individual_gaus(data, NameList[i])
 
-# Maxima der Gaußfunktionen
+# Alle Gaußfunktionen in einem Plot zusammenfassen 
 for i in range(8):
     if i < 4:
         plt.errorbar(max[6*i:6*i+6], may[6*i:6*i+6], xerr=maxerr[6*i:6*i+6], yerr=mayerr[6*i:6*i+6],
@@ -105,7 +110,6 @@ for i in range(8):
     else:
         plt.errorbar(max[6*i:6*i+6], may[6*i:6*i+6], xerr=maxerr[6*i:6*i+6], yerr=mayerr[6*i:6*i+6],
                     marker = '.', label=f'Maxima für $T =$ {NameList[i][-3:]} °C', zorder = 20, color = ColorTable[i])
-
 plt.xlabel('Beschleunigungsspannung $U_{B}$ / V', fontsize = 12)
 plt.ylabel('Anodenstrom $I_{A}$ / A', fontsize = 12)
 plt.legend()
@@ -115,7 +119,8 @@ plt.show
 plt.savefig(f'{input_dir}\\Output\\FH\\Maxima.pdf')
 plt.cla()
 
-# Normierte Maxima
+
+# Differenz der Maxima 
 for i in range(8):
     diff = []
     diffErr = []

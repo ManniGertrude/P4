@@ -4,26 +4,34 @@ import numpy as np
 import pandas as pd
 import os
 
+
+# Systempfad
 input_dir = os.path.dirname(os.path.abspath(__file__))
 
 
+# Einlesen der Daten
 def read_csv_input(test, head, skip):
     data = pd.read_csv(f'{input_dir}\\{test}', sep="\t", header=head, skiprows=skip).astype(np.float64)
     return data
 
 
+# Freiheitsgrade der 3 Gaussfunktionen (i dont even know anymore, wofür ich das brauchte...)
 def objective(params, x, y):
     residuals = g3(x, *params) - y
     return np.sum(residuals**2)
 
 
+# Lineare Funktion
 def lin(x, a, b):
     return a*x + b
 
+
+# Polynom 4. Grades
 def polyfit(x, a, b, c,  d, e):
     return a*x**4 + b*x**3 + c*x**2 + d*x**1 + e
 
 
+# 3 Gaussfunktionen
 def g3(x, a1, x1, o1, a2, x2, o2, a3, x3, o3, c, m):
     g1= a1/(o1*(2*np.pi)**(1/2))*np.exp(-(x-x1)**2/(2*o1)**2)
     g2 = a2/(o2*(2*np.pi)**(1/2))*np.exp(-(x-x2)**2/(2*o2)**2)
@@ -31,14 +39,15 @@ def g3(x, a1, x1, o1, a2, x2, o2, a3, x3, o3, c, m):
     return g1 + g2 + g3 - m*(x)**2 + c
 
 
+# Gaussfunktion
 def g1(x, A, mu, sigma, c):
     return A/(sigma*(2*np.pi)**(1/2))*np.exp(-(x-mu)**2/(2*sigma)**2) + c
 
 
 e = ['Data\\Strom zu Magnetfeld danach.csv', 
      'Data\\Strom zu Magnetfeld davor.csv']
-e_Names = ['danach', 'davor']
 
+e_Names = ['danach', 'davor']
 
 f = ["Data\\Intensitäten\\0.csv",
      "Data\\Intensitäten\\1.csv", 
@@ -51,12 +60,11 @@ f = ["Data\\Intensitäten\\0.csv",
      "Data\\Intensitäten\\8.csv", 
      "Data\\Intensitäten\\9.csv"]
 
-
 ColorTable = ['crimson','darkgoldenrod','olive', 'green', 'darkcyan',
               'slateblue', 'orchid', 'deeppink', 'purple', 'black']
 
 
-# Ampere zu Tesla 
+# Magnetfeld in Abhängigkeit des Stroms
 popts = []
 perrs = []
 for i in range(len(e)):
@@ -80,10 +88,10 @@ for i in range(len(e)):
     plt.errorbar(xdata, ydata, yerr= yerr, color=ColorTable[i+4], marker='o',markersize =1, 
                      linestyle='none', label=f'Datenpunkte {e_Names[i]}', zorder = 1, alpha = 0.8)
 yDiff = polyfit(xdata, *popts[0]) - polyfit(xdata, *popts[1])
-# Print1 = f' Davor & {popts[1][0]:.4f} $\pm$ {perrs[1][0]:.4f} & {popts[1][1]:.3f} $\pm$ {perrs[1][1]:.3f} & {popts[1][2]:.2f} $\pm$ {perrs[1][2]:.2f} & {popts[1][3]:.2f} $\pm$ {perrs[1][3]:.2f} & {popts[1][4]:.4f} $\pm$ {perrs[1][4]:.4f} \\\\'
-# Print2 = f' Danach & {popts[0][0]:.4f} $\pm$ {perrs[0][0]:.4f} & {popts[0][1]:.3f} $\pm$ {perrs[0][1]:.3f} & {popts[0][2]:.2f} $\pm$ {perrs[0][2]:.2f} & {popts[0][3]:.2f} $\pm$ {perrs[0][3]:.2f} & {popts[0][4]:.4f} $\pm$ {perrs[0][4]:.4f} \\\\'
-# Print1 = Print1.replace('.', ',')
-# Print2 = Print2.replace('.', ',')
+Print1 = f' Davor & {popts[1][0]:.4f} $\pm$ {perrs[1][0]:.4f} & {popts[1][1]:.3f} $\pm$ {perrs[1][1]:.3f} & {popts[1][2]:.2f} $\pm$ {perrs[1][2]:.2f} & {popts[1][3]:.2f} $\pm$ {perrs[1][3]:.2f} & {popts[1][4]:.4f} $\pm$ {perrs[1][4]:.4f} \\\\'
+Print2 = f' Danach & {popts[0][0]:.4f} $\pm$ {perrs[0][0]:.4f} & {popts[0][1]:.3f} $\pm$ {perrs[0][1]:.3f} & {popts[0][2]:.2f} $\pm$ {perrs[0][2]:.2f} & {popts[0][3]:.2f} $\pm$ {perrs[0][3]:.2f} & {popts[0][4]:.4f} $\pm$ {perrs[0][4]:.4f} \\\\'
+Print1 = Print1.replace('.', ',')
+Print2 = Print2.replace('.', ',')
 # print(Print1)
 # print(Print2)
 yValues = 0.5*polyfit(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), *popts[0])+ 0.5*polyfit(np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), *popts[1])
@@ -112,7 +120,8 @@ for i in range(len(f)):
     plt.xlabel('Winkel $\\alpha$ / °', fontsize = 12)
     plt.savefig(f'{input_dir}\\Output\\ZM\\{f[i][-5]}A.pdf')
     plt.cla()
-    
+
+
 # Intensitäten zusammen
 for i in range(len(f)):
     data = read_csv_input(f[i], 0, 0)
@@ -128,16 +137,7 @@ plt.savefig(f'{input_dir}\\Output\\ZM\\Alle.pdf')
 plt.cla()
 
 
-
-
-
-
-
-
-
-
-
-# bounds        a1,    x1,  o1,  a2,    x2,   o2,   a3,    x3,   o3,    c,  m
+# Parameter der Gausfunktionen
 p0           = [[1.5,  -0.7, 0.03, 1.0, -0.66, 0.02,  4.0, -0.6, 0.04,   15,  0],
                 [1.5,  -0.7, 0.01, 1.0, -0.66, 0.02,  4.0, -0.6, 0.04,   15,  0],
                 [1.5,  -0.7, 0.03, 1.0, -0.66, 0.02,  4.0, -0.6, 0.04,   15,  0],
@@ -173,7 +173,7 @@ upper_bounds = [[10,-0.65, 0.2, 10,  -0.6, 0.2, 10, -0.45, 0.2,  30,  20],
                 [10, -0.7, 0.2, 10,  -0.6, 0.2, 10, -0.45, 0.2,  30,  20],
                 [ 2,-0.78, 0.2, 10,  -0.6, 0.2, 10, -0.45, 0.2,  30,  20]]
 
-# einzelner Peak
+# Paar Arrays vorbereiten
 GrenzeUnten = -0.9
 GrenzeOben = -0.3
 Position1 = []
@@ -184,6 +184,7 @@ dEp = []
 dEpErr = []
 dEm = []
 dEmErr = []
+# Intensität in Abhängigkeit des Winkels für verschiedene Magnetfelder
 for i in range(len(f)):
     data = read_csv_input(f[i], 0, 0)
     xdata = np.asarray(data['a'], dtype=np.float64)
@@ -210,18 +211,18 @@ for i in range(len(f)):
     Position1.append(popt[4]-popt[1])
     Position1Err.append(np.sqrt(perr[4]**2 + perr[1]**2))
     Position2.append(-popt[4]+popt[7])
-    Position2Err.append(np.sqrt(perr[4]**2 + perr[7]**2))
+    Position2Err.append(np.sqrt(perr[4]**2 + perr[7]**2))    
     dEp.append(1.986e-25*(8e-3*np.cos(popt[1]) - 8e-3*np.cos(popt[4]))/(8e-3*np.cos(popt[4]) * 8e-3*np.cos(popt[1])))
     dEm.append(1.986e-25*(8e-3*np.cos(popt[7]) - 8e-3*np.cos(popt[4]))/(8e-3*np.cos(popt[4]) * 8e-3*np.cos(popt[7])))
     dEpErr.append(np.sqrt((1.986e-25*np.cos(popt[1])*perr[1]/(8e-3*np.sin(popt[1])**2))**2 + (1.986e-25*np.cos(popt[4]*perr[4])/(np.sin(popt[4])**2))**2 ))
     dEmErr.append(np.sqrt((1.986e-25*np.cos(popt[7])*perr[7]/(8e-3*np.sin(popt[7])**2))**2 + (1.986e-25*np.cos(popt[4]*perr[4])/(np.sin(popt[4])**2))**2 ))
-    # Position1.append(f'{(popt[4] - popt[1]):.5f} $\pm$ {(np.sqrt(perr[4]**2 + perr[1]**2)):.5f} ')
-    # Position2.append(f'{(popt[7] - popt[4]):.5f} $\pm$ {(np.sqrt(perr[7]**2 + perr[4]**2)):.5f} ')
 BFeld = np.array([0, 58, 129, 202, 272, 333, 382, 421, 450, 475])*0.001
 xErr = []
 for i in BFeld:
     xErr.append(i*0.025)
 
+
+# Aufspaltung der Maxima in Abhängigkeit des Magnetfeldes
 plt.errorbar(BFeld, Position1, xerr=xErr, yerr=Position1Err,    color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu_1|$', zorder = 10, alpha = 0.7) 
 plt.errorbar(BFeld, Position2, xerr=xErr, yerr=Position2Err,    color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu_3|$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld, Position1, p0=[1, 1], sigma=np.asarray(Position1Err), absolute_sigma=True, maxfev=10000)
@@ -252,6 +253,8 @@ plt.xlabel('Magnetfeld $B$ / T', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\AufspaltungZuBFeld.pdf')
 plt.cla()
 
+
+# Aufspaltung der Energie in Abhängigkeit des Magnetfeldes
 plt.errorbar(BFeld, dEp, yerr=dEpErr, xerr=xErr, color = 'red',linestyle ='none', label =f'$\\Delta E_-$', zorder = 10, alpha = 0.7) 
 plt.errorbar(BFeld, dEm, yerr=dEmErr, xerr=xErr, color = 'blue',linestyle ='none', label =f'$\\Delta E_+$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld, dEp, p0=[1, 1], sigma=np.asarray(dEpErr), absolute_sigma=True, maxfev=10000)
@@ -268,8 +271,8 @@ Print1 = f'{popt1[0]} $\pm$ {perr1[0]} & {popt1[1]} $\pm$ {perr1[1]} & {chisq1} 
 Print2 = f'{popt2[0]} $\pm$ {perr2[0]} & {popt2[1]} $\pm$ {perr2[1]} & {chisq2} & {chi_ndf2} \\\\'
 Print1 = Print1.replace('.', ',')
 Print2 = Print2.replace('.', ',')
-# print(Print1)
-# print(Print2)
+print(Print1)
+print(Print2)
 plt.plot(BFeld, lin(BFeld, *popt1), color = 'red',
         label =f'$|\\Delta E_-|$ Anpassung', zorder = 10)
 plt.plot(BFeld, lin(BFeld, *popt2), color = 'blue',
@@ -283,9 +286,7 @@ plt.savefig(f'{input_dir}\\Output\\ZM\\DeltaEZuBFeld.pdf')
 plt.cla()
 
 
-
-# Nochmal aber mit Filter
-
+# Filter
 BFeld1 = np.array([333, 382, 421, 450, 475])*0.001
 BFeld2 = np.array([272, 333, 382, 421, 450, 475])*0.001
 Position1 = Position1[5:]
@@ -298,6 +299,9 @@ dEmErr = dEmErr[4:]
 dEpErr = dEpErr[5:]
 xErr1 = xErr[5:]
 xErr2 = xErr[4:]
+
+
+# Aufspaltung der Maxima in Abhängigkeit des Magnetfeldes mit Filter
 plt.errorbar(BFeld1, Position1, yerr=Position1Err, xerr=xErr1, color = 'red',linestyle ='none', label =f'$|\mu_2 - \mu_1|$', zorder = 10, alpha = 0.7) 
 plt.errorbar(BFeld2, Position2, yerr=Position2Err, xerr=xErr2, color = 'blue',linestyle ='none', label =f'$|\mu_2 - \mu_3|$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld1, Position1, p0=[1, 1], sigma=np.asarray(Position1Err), absolute_sigma=True, maxfev=10000)
@@ -329,6 +333,7 @@ plt.savefig(f'{input_dir}\\Output\\ZM\\AufspaltungZuBFeld_Filter.pdf')
 plt.cla()
 
 
+# Aufspaltung der Energie in Abhängigkeit des Magnetfeldes mit Filter
 plt.errorbar(BFeld1, dEp, yerr=dEpErr, xerr=xErr1, color = 'red',linestyle ='none', label =f'$\\Delta E_- Datenpunkte$', zorder = 10, alpha = 0.7) 
 plt.errorbar(BFeld2, dEm, yerr=dEmErr, xerr=xErr2, color = 'blue',linestyle ='none', label =f'$\\Delta E_+ Datenpunkte$', zorder = 10, alpha = 0.7)
 popt1, pcov1 = curve_fit(lin, BFeld1, dEp, p0=[1, 1], sigma=np.asarray(dEpErr), absolute_sigma=True, maxfev=10000)
@@ -345,8 +350,8 @@ Print1 = f'{popt1[0]} $\pm$ {perr1[0]} & {popt1[1]} $\pm$ {perr1[1]} & {chisq1} 
 Print2 = f'{popt2[0]} $\pm$ {perr2[0]} & {popt2[1]} $\pm$ {perr2[1]} & {chisq2} & {chi_ndf2} \\\\'
 Print1 = Print1.replace('.', ',')
 Print2 = Print2.replace('.', ',')
-# print(Print1)
-# print(Print2)
+print(Print1)
+print(Print2)
 plt.plot(BFeld1, lin(BFeld1, *popt1), color = 'red',
         label =f'$\\Delta E_-$ Anpassung', zorder = 10)
 plt.plot(BFeld2, lin(BFeld2, *popt2), color = 'blue',
@@ -359,24 +364,12 @@ plt.xlabel('Magnetfeld $B$ / T', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\DeltaEZuBFeld_Filter.pdf')
 plt.cla()
 
- 
- 
 
-
-
-
-# for i in range(len(Position1)):
-#     Position1[i] = Position1[i].replace('.', ',')
-#     Position2[i] = Position2[i].replace('.', ',')
-#     print(f'{i} & {Position1[i]} & {Position2[i]} \\\\')
-# # Peaks eines Spektrums
-# # Intensitäten einzeln
-
+# Peakabstände
 data = read_csv_input(f[0], 0, 0)
 xdata = np.asarray(data['a'], dtype=np.float64)
 ydata = np.asarray(data['I1'], dtype=np.float64)
 yerr = np.asarray(0.02*abs(data['I1']+0.01), dtype=np.float64)
-
 xk = [5.5 ]
 yk = []
 for i in range(2, len(ydata)):
@@ -393,6 +386,8 @@ plt.xlabel('Winkel $\\alpha$ /°', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\Peakabstände.pdf')
 plt.cla()
 
+
+# Abstände der Maxima
 xValues = []
 Abstand = []
 for i in range(1, len(xk)):
@@ -406,6 +401,8 @@ plt.xlabel('Winkel $\\alpha$ / °', fontsize = 12)
 plt.savefig(f'{input_dir}\\Output\\ZM\\Abstände.pdf')
 plt.cla()
 
+
+# Filter
 i = 0
 while i < len(xValues):
     if xValues[i] > -3.5 and xValues[i] < 5 or i == 17:
@@ -413,6 +410,9 @@ while i < len(xValues):
     else:
         xValues.pop(i), Abstand.pop(i), xk.pop(i)
 xk.pop(0)
+
+
+# Gefilterte Abstände der Maxima
 plt.scatter(xValues, Abstand, color = 'black', marker='x')
 plt.title(f'Gefilterte Abstände der Maxima', fontsize = 14)
 plt.grid()
@@ -423,6 +423,7 @@ plt.cla()
 Abstand[27] = 0.4
 
 
+# Finesse
 Finesse = []
 FinesseErr = []
 FinesseErr2 = []
@@ -440,13 +441,12 @@ for i in range(len(xk)-1):
     ydatapre = g1(xdata_f, *popt)
     chisq = np.sum(((ydata_f-ydatapre)**2)/(abs(ydata_f)*0.01)**2)
     chi_ndf = chisq/(len(xdata_f)-5)
-    # Print = f'{popt[0]:.4f} $\pm$ {perr[0]:.2g} & {popt[1]:.5f} $\pm$ {perr[1]:.2g} & {popt[2]:.5f} $\pm$ {perr[2]:.2g} & {2*np.sqrt(2*np.log(2))*popt[2]:.3f} $\pm$ {2*np.sqrt(2*np.log(2))*popt[2]:.2g} & {Abstand[i]/(2*np.sqrt(2*np.log(2))*popt[2]):.3f} $\pm$ {Abstand[i]*perr[2]/(2*np.sqrt(2*np.log(2))*popt[2]**2):.3f} & {chi_ndf:.0f} \\\\'
-    # Print = Print.replace('.', ',')
+    Print = f'{popt[0]:.4f} $\pm$ {perr[0]:.2g} & {popt[1]:.5f} $\pm$ {perr[1]:.2g} & {popt[2]:.5f} $\pm$ {perr[2]:.2g} & {2*np.sqrt(2*np.log(2))*popt[2]:.3f} $\pm$ {2*np.sqrt(2*np.log(2))*popt[2]:.2g} & {Abstand[i]/(2*np.sqrt(2*np.log(2))*popt[2]):.3f} $\pm$ {Abstand[i]*perr[2]/(2*np.sqrt(2*np.log(2))*popt[2]**2):.3f} & {chi_ndf:.0f} \\\\'
+    Print = Print.replace('.', ',')
     # print(Print)
     Finesse.append(Abstand[i]/(2*np.sqrt(2*np.log(2))*popt[2]))
     FinesseErr.append(Abstand[i]*perr[2]/(2*np.sqrt(2*np.log(2))*popt[2]**2))
     FinesseErr2.append(Abstand[i]*perr[1]/(2*np.sqrt(2*np.log(2))*popt[2]))
-    
     plt.plot(xdata_f, g1(xdata_f, *popt), color = 'red',linestyle ='-', zorder = 10, alpha = 0.5) 
 plt.errorbar(xdata, ydata, yerr=yerr, color = 'black')
 plt.xlim(-3.9, 5.5)
@@ -459,4 +459,7 @@ plt.show
 plt.cla()
 # print(Finesse, FinesseErr)
 # print(np.mean(Finesse))
-# print(np.sqrt(np.std(Finesse)**2 + np.mean(FinesseErr)**2 + np.mean(FinesseErr2)**2))
+# print(np.std(Finesse))
+# print(np.mean(FinesseErr))
+# print(np.mean(FinesseErr2))
+# print(np.sqrt(np.mean(FinesseErr)**2 + np.mean(FinesseErr2)**2 + np.std(Finesse)**2))
