@@ -152,7 +152,7 @@ for i in range(len(e)):
         chi_ndf = chisq/(len(xP)-len([*p0[i][3*j+0:3*j+3],p0[i][6]]))
         perr.append(np.sqrt(np.diag(c)))
         plt.plot(xValues, l1(xValues, *popt[j]), label = 'Anpassung 1', zorder = 10, alpha = 0.8, c = ColorTable[j])
-        Print = (f'{e[i][:1]}$_\{e[i][1:-4]}$ & {popt[j][0]:.3f} $\pm$ {perr[j][0]:.2g} & {popt[j][1]:.5f} $\pm$ {perr[j][1]:.2g} & {popt[j][2]:.5f} $\pm$ {perr[j][2]:.2g} & {popt[j][3]:.3f} $\pm$ {perr[j][3]:.2g} & {chi_ndf:.4g} \\\\')
+        Print = (f'{e[i][:1]}$_\{e[i][1:-4]}$ & {popt[j][0]:.3f} $\pm$ {perr[j][0]:.2g} & {popt[j][1]:.5f} $\pm$ {perr[j][1]:.2g} & {popt[j][2]:.5f} $\pm$ {perr[j][2]:.2g} & {popt[j][3]:.3f} $\pm$ {perr[j][3]:.2g} & {chisq:.3g} & {chi_ndf:.3g} \\\\')
         Print = Print.replace('.', ',')
         print(Print)
     plt.xlim(Grenze[0][i], Grenze[2][i])
