@@ -15,7 +15,7 @@ def linear(x, a, b):
 LambdaListe = np.array([546, 365, 365, 365, 365, 405, 405, 436, 436, 578, 578, 546])
 
 
-NamenListe = ['546_1', '365_1', '365_2', '365_3', '365_4', '405_1', '405_2', '436_1', '436_2', '578_1', '578_2', '546_2']
+NamenListe = ['546_2', '365_4', '365_1', '365_3', '365_2', '405_1', '405_2', '436_1', '436_2', '578_1', '578_2', '546_1']
 
 
 U_G_list = [[0.492,0.391,0.297,0.248,0.18,0.125,0.078,0.026,0.],
@@ -85,12 +85,12 @@ for i in range(len(LambdaListe)):
     weights = 1 / fit_sqrt_I_A_error**2  # Gewichtung nach Fehlern
     fit_params, cov_matrix = np.polyfit(fit_U_G, fit_sqrt_I_A, 1, w=weights, cov=True)
     fit_line = np.poly1d(fit_params)
-
+    fit_error = np.sqrt(np.diag(cov_matrix))
     # Nullstelle (Grenzspannung U_0) und Fehler
-    U_0_Test = -fit_params[1] / fit_params[0]
+    U_0 = -fit_params[1] / fit_params[0]
     U_0_error = np.sqrt((cov_matrix[1, 1] / fit_params[0]**2) +((fit_params[1]**2 * cov_matrix[0, 0]) / fit_params[0]**4) -(2 * fit_params[1] * cov_matrix[0, 1] / fit_params[0]**3))#np.sqrt(np.diag(cov_matrix)[0])
  
-    U0List.append(U_0_Test)
+    U0List.append(U_0)
     U0ListErr.append(U_0_error)
     
     # Berechnung des reduzierten Chi-Quadrat-Wertes
@@ -111,7 +111,7 @@ for i in range(len(LambdaListe)):
     x_fit = np.linspace(0, np.max(U_G) + 0.1, 100)
     plt.plot(x_fit, fit_line(x_fit), label=f'Fit: $y = {fit_params[0]:.3f}x + {fit_params[1]:.3f}$', color='lightgreen', zorder=4)
     # Nullstelle markieren
-    plt.axvline(U_0_Test, color='orange', linestyle='--', label=f'Grenzspannung $U_0 = {U_0_Test:.3f} \pm {U_0_error:.3f}$ V')
+    plt.axvline(U_0, color='orange', linestyle='--', label=f'Grenzspannung $U_0 = {U_0:.3f} \pm {U_0_error:.3f}$ V')
 
     # Plot-Details
     plt.title(f'Anodenstrom bei $\lambda$={LambdaListe[i]} [nm] ({NamenListe[i][-1:]}. Messung) ', fontsize=14)
@@ -126,8 +126,10 @@ for i in range(len(LambdaListe)):
 
     # Diagramm anzeigen
     plt.show
-
-    # Ergebnisse ausgeben
+    Print = (f'{LambdaListe[i]} & {NamenListe[i][-1:]} & {fit_params[0]:.3f} $\pm$ {fit_error[0]:.3f} & {fit_params[1]:.3f} $\pm$ {fit_error[1]:.3f} & {U_0:.3f} $\pm$ {U_0_error:.3f} & {chisq:.3f} & {chisq_red:.3f} \\\\')
+    Print = Print.replace('.', ',')
+    print(Print)
+    
     # print(f"Die Grenzspannung U_0 beträgt: {U_0:.3f} ± {U_0_error:.3f} V")
     # print(f"Chi-Quadrat-Wert: {chisq:.3f}")
     # print(f"Reduziertes Chi-Quadrat: {chisq_red:.3f}")
@@ -163,6 +165,13 @@ h_error = h_over_e_error * e
 W_A = W_A_over_e * e  # W_A = -(b/e) * e
 W_A_error = W_A_over_e_error * e
 
+
+# Chi-Quadrat Berechnung
+residuals = U0 - linear(frequencies, *popt)  # Abweichungen zwischen Messwerten und Fit
+chi_squared = np.sum((residuals / U0_errors) ** 2)  # Chi^2-Wert
+reduced_chi_squared = chi_squared / (len(U0) - len(popt))  # Reduzierter Chi^2-Wert
+
+
 # Plot
 plt.figure(figsize=(10, 6))
 plt.errorbar(frequencies, U0, yerr=U0_errors, fmt='o', label='Messdaten', color='blue', capsize=3)
@@ -186,3 +195,7 @@ print()
 print("Berechnete Werte:")
 print(f"Plancksche Konstante h: {h:.3e} ± {h_error:.3e} J·s")
 print(f"Austrittsarbeit W_A: {W_A:.3e} ± {W_A_error:.3e} J")
+print()
+print("Statistische Auswertung:")
+print(f"Chi-Quadrat-Wert (χ²): {chi_squared:.3f}")
+print(f"Reduzierter Chi-Quadrat-Wert (χ²_red): {reduced_chi_squared:.3f}")
