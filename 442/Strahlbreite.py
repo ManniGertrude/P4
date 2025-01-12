@@ -12,7 +12,7 @@ def Printer(Temp):
 
 
 def lin(Para, x):
-    return Para[0] *np.sqrt( 1+x**2/Para[1]**2)
+    return Para[0] *np.sqrt(1+(x/(Para[1]))**2)
 
 
 # Strahlbreite 
