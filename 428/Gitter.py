@@ -15,7 +15,7 @@ def gausfit(func, x, y, farbe, beta):
     mydata = odr.RealData(x, y, sx=1e-2, sy=np.sqrt(y))
     myodr = odr.ODR(mydata, model, beta0=beta, maxit=10000)
     out = myodr.run()
-        
+    print(Deg2Ev(out.beta[1]), '+-', out.sd_beta[1]*1239.8/out.beta[1]**2)
     fy = func(out.beta, x)
     # print('out.beta, out.sd_beta)
     chi2 = np.sum((y - fy)**2/fy)
@@ -71,10 +71,6 @@ ticks = np.array([6, 7, 8, 9, 10, 12, 15, 20, 30, 50])
 tick_labels = [Ev2Deg(tick) for tick in ticks]
 thiax.set_xticks(tick_labels )
 thiax.set_xticklabels(ticks)
-
-
-
-
 
 plt.legend()
 plt.grid()
