@@ -15,7 +15,7 @@ def gausfit(func, x, y, farbe, beta):
     mydata = odr.RealData(x, y, sx=1e-2, sy=np.sqrt(y))
     myodr = odr.ODR(mydata, model, beta0=beta, maxit=10000)
     out = myodr.run()
-    print(Deg2Ev(out.beta[1]), '+-', np.deg2rad(out.sd_beta[1])*0.55151245516*np.cos(np.deg2rad(out.beta[1]/2))/np.sin(np.deg2rad(out.beta[1]/2))**2)
+    print(f'E in keV: {Deg2Ev(out.beta[1]):.5g}+-{(np.deg2rad(out.sd_beta[1])*0.55151245516*np.cos(np.deg2rad(out.beta[1]/2))/np.sin(np.deg2rad(out.beta[1]/2))**2):.2g}')
     fy = func(out.beta, x)
     # print('out.beta, out.sd_beta)
     chi2 = np.sum((y - fy)**2/fy)
