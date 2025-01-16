@@ -16,7 +16,7 @@ def gauss(Para, x):
 
 def gausfit(func, x, y, farbe, beta):
     model = odr.Model(func)
-    mydata = odr.RealData(x, y, sx=0.05, sy=np.sqrt(y))
+    mydata = odr.RealData(x, y, sx=0.005, sy=np.sqrt(y)/120)
     myodr = odr.ODR(mydata, model, beta0=beta, maxit=10000)
     out = myodr.run()
     print(f'E in keV: {Deg2Ev(out.beta[1]):.8g}+-{(np.deg2rad(out.sd_beta[1])*0.55151245516*np.cos(np.deg2rad(out.beta[1]/2))/np.sin(np.deg2rad(out.beta[1]/2))**2):.2g}')
@@ -29,10 +29,10 @@ def gausfit(func, x, y, farbe, beta):
     return out
 
 def Deg2pm(x):
-    return 2*562*np.sin(np.deg2rad(x/2))
+    return 2*562.73*np.sin(np.deg2rad(x/2))/1.467
 
 def pm2Deg(x):
-    return np.rad2deg(2*np.arcsin(x/(2*562)))
+    return np.rad2deg(2*np.arcsin(1.467*x/(2*562.73)))
 
 def Deg2Ev(x):
     return 1239.8/Deg2pm(x)
@@ -41,7 +41,7 @@ def Ev2Deg(x):
     return pm2Deg(1239.8/x)
 
 path = os.path.dirname(os.path.abspath(__file__))
-data = pd.read_csv(f'{path}\\DatenD1\\NaCl281.97.txt', sep="\t", header=0, names=['b', 'R'], dtype=str)
+data = pd.read_csv(f'{path}\\DatenD2\\Feinstruktur.txt', sep="\t", header=0, names=['b', 'R'], dtype=str)
 
 # Replace commas with dots and convert to float
 data['b'] = data['b'].str.replace(',', '.').astype(float)
@@ -57,11 +57,9 @@ xP2 = xData[170:215]
 yP2 = yData[170:215]
 
 
-plt.errorbar(xData, yData, xerr=0.05, yerr=np.sqrt(yData), color='darkolivegreen', label='Messwerte', marker='.', zorder=1, linestyle='None')
-gausfit(gauss, xP2, yP2, 'purple', [426, 20, 0.18, 0, 36.5])
-gausfit(gauss, xP1, yP1, 'blue', [200, 18.25, 0.3, 0, 36.5])
-
-ax.axvline(x=pm2Deg(35.42), color='red', linestyle='--', label='$\\lambda_{theo}^{min} = 35,42 $ pm$ \Leftrightarrow E_{theo}^{max} = 35 keV$', alpha=0.8)
+plt.errorbar(xData, yData, xerr=0.005, yerr=np.sqrt(yData)/120, color='darkolivegreen', label='Messwerte', marker='.', zorder=1, linestyle='None')
+# gausfit(gauss, xP2, yP2, 'purple', [426, 20, 0.18, 0, 36.5])
+# gausfit(gauss, xP1, yP1, 'blue', [200, 18.25, 0.3, 0, 36.5])
 
 plt.ylabel('Mittlere Zählrate [1/s]', fontsize=12, labelpad=2)
 plt.xlabel('Winkel [°]', fontsize=12, labelpad=1)
@@ -69,15 +67,15 @@ plt.xlabel('Winkel [°]', fontsize=12, labelpad=1)
 secax = ax.secondary_xaxis('top', functions=(Deg2pm, pm2Deg))
 secax.set_xlabel('Wellenlänge [pm]', fontsize=12, labelpad=3)
 
-thiax = ax.secondary_xaxis(-0.14)
-thiax.set_xlabel('Energie [keV]', fontsize=12, labelpad=2)
+# thiax = ax.secondary_xaxis(-0.14)
+# thiax.set_xlabel('Energie [keV]', fontsize=12, labelpad=2)
 
-ticks = np.array([6, 7, 8, 9, 10, 12, 15, 20, 30, 50])
-tick_labels = [Ev2Deg(tick) for tick in ticks]
-thiax.set_xticks(tick_labels )
-thiax.set_xticklabels(ticks)
+# ticks = np.array([6, 7, 8, 9, 10, 12, 15, 20, 30, 50])
+# tick_labels = [Ev2Deg(tick) for tick in ticks]
+# thiax.set_xticks(tick_labels )
+# thiax.set_xticklabels(ticks)
 
 plt.legend()
 plt.grid()
-plt.savefig(f'{path}\\NaCl.pdf')
+plt.savefig(f'{path}\\Feinstruktur.pdf')
 
