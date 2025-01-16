@@ -13,7 +13,7 @@ def gausfit(func, x, y, farbe, beta):
 
     model = odr.Model(func)
     mydata = odr.RealData(x, y, sx=1e-2, sy=np.sqrt(y))
-    myodr = odr.ODR(mydata, model, beta0=beta, maxit=1000)
+    myodr = odr.ODR(mydata, model, beta0=beta, maxit=10000)
     out = myodr.run()
     
     print(nm2Ev(out.beta[1]))
@@ -46,7 +46,7 @@ data = pd.read_csv(f'{path}\\DatenD1\\NaCl281.97.txt', sep="\t", header=0, names
 data['b'] = data['b'].str.replace(',', '.').astype(float)
 data['R'] = data['R'].str.replace(',', '.').astype(float)
 
-xData = data['b'].values
+xData = data['b'].values - 0.23
 yData = data['R'].values
 
 xP1 = xData[150:172]
