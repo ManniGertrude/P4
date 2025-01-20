@@ -39,7 +39,7 @@ for i in range(len(files)):
     chi2 = np.sum((yData - fit)**2 / np.sqrt(yData+1e-5))/(len(yData) - len(Params))
     print(f'\hline \hline \n {files[i]} & {chi2} &  & \\\\ \n \hline')
     for j in range(0, len(popt), 3):
-        if i*100+j in [6, 106, 203, 306, 309, 415, 418, 506, 512, 612, 703, 803, 806, 809, 906, 903, 1118, 1124, 1203, 1312, 1403, 1606, 1703]:
+        if i*100+j in [6, 106, 203, 306, 312, 415, 418, 506, 512, 612, 703, 800, 806, 809, 903, 1118, 1124, 1103, 1203, 1312, 1403, 1606, 1703]:
             Printer(f'({j//3+1}) & {popt[j]:.0f} $\pm$ {poptErr[j]:.2g} & {popt[j+1]:.3f} $\pm$ {poptErr[j+1]:.2g} & {popt[j+2]:.4f} $\pm$ {poptErr[j+2]:.2g}\\\\')
             plt.plot(xData, gauss(xData, *popt[j:j+3]), label=f'Gauss ({j//3+1})', zorder=30, alpha=0.5, linestyle='--')
 
@@ -50,5 +50,8 @@ for i in range(len(files)):
     plt.errorbar(xData, yData, xerr=0.05, yerr=np.sqrt(yData), color='darkolivegreen', label='Messwerte', marker='.', zorder=1, linestyle='None')
     plt.grid()
     plt.legend()
+    plt.xlabel('Kanalnummer des MCA', fontsize=12)
+    plt.ylabel('Zählrate', fontsize=12)
+    plt.title(f'Spektrum {files[i]}', fontsize=14)
     plt.savefig(f'{path}\\Plots\\{files[i]}.pdf')
     plt.cla()
