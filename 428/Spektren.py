@@ -62,7 +62,9 @@ for i in range(len(files)):
     plt.ylabel('Zählrate', fontsize=12)
     plt.title(f'Spektrum {files[i]}', fontsize=14)
     plt.savefig(f'{path}\\Plots\\{files[i]}.pdf')
+    plt.show()
     plt.cla()
+    
 
 
 
