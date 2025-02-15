@@ -7,24 +7,57 @@ from sklearn.metrics import r2_score
 
 path = os.path.dirname(os.path.abspath(__file__))
 
-Lambda = [6678.3, 6752.8, 6871.3, 6402.2, 6416.3, 6383.0]
+Lambda = [6383, 6402.2, 6416.3, 6678.3, 6752.8, 6871.3]
 
 def linear(x, a, b):
     return a * x + b 
 
-def sin(x, a, b):
-    return a * np.sin(3.96*x) + b
+def sin(x, a, b, c):
+    return a * np.sin(2*np.pi*(x+b)/3.9600400) + c
 
-DateTable = []
+DateTable = np.array(['2021-02-09T23:17:09', 
+             '2021-02-11T19:28:29',
+             '2021-02-12T02:58:07',
+             '2021-02-12T19:14:25',
+             '2021-02-13T03:10:15',
+             '2021-02-13T18:58:06',
+             '2021-02-13T23:03:31',
+             '2021-02-14T04:04:03',
+             '2021-04-23T22:19:53',
+             '2021-09-02T00:25:11',
+             '2021-09-08T00:28:46',
+             '2021-09-09T00:43:39',
+             '2021-09-23T00:39:23',
+             '2021-10-07T23:04:47',
+             '2021-10-24T23:44:23',
+             '2021-10-28T00:16:03',
+             '2021-10-28T23:55:01',
+             '2021-11-09T22:24:17',
+             '2021-12-20T21:15:02',
+             '2021-12-21T00:35:31',
+             '2021-12-22T01:14:16'], dtype='datetime64[D]')
+
+ZeitVerschiebung = (DateTable - np.datetime64('2021-03-20T09:37:00')) / np.timedelta64(1, 'D')
+ModZeitVerschiebung = ZeitVerschiebung % 3.96004
 Verschiebung = []
 VerschiebungError = []
 
-for folder in os.listdir(f'{path}\\BAur'):
-    fig, ax = plt.subplots()
-    
 
-    DateTable.append((np.datetime64(folder[:10]) - np.datetime64('2021-02-09')) / np.timedelta64(1, 'D'))
-    
+delta = np.deg2rad(44.9475)
+alpha = 1.56658814
+epsilon = np.deg2rad(23)
+y = np.cos(delta)*np.cos(alpha)
+z = np.cos(epsilon)*np.sin(delta)-np.sin(epsilon)*np.cos(delta)*np.sin(alpha)
+B = np.arcsin(z)
+L = np.arccos(y/np.cos(B))
+
+Index = -1
+for folder in os.listdir(f'{path}\\BAur'):
+    Index += 1
+    LE = 2*np.pi*ZeitVerschiebung[Index]/365.25
+    vErde = -29.8*np.cos(B)*np.sin(LE-L)
+    fig, ax = plt.subplots()
+        
     Data = pd.read_csv(f'{path}\\BAur\\{folder}\\output.dat', sep='\t', names=['x', 'b', 'y'])[:742]
     # ax.plot(Data['x'], Data['y'], label=folder)
 
@@ -39,7 +72,6 @@ for folder in os.listdir(f'{path}\\BAur'):
             Data = Data[mask]
 
     Maxima = np.sort(Maxima)
-    Lambda = np.sort(Lambda)
     
     # ax.plot(Data['x'], Data['y'], label=folder, color='green')
     # plt.legend()
@@ -59,14 +91,14 @@ for folder in os.listdir(f'{path}\\BAur'):
     # plt.xlabel('Kanalnummer')
     # plt.savefig(f'{path}\\BAur\\{folder}\\fit.pdf')
     plt.close()
-    Verschiebung.append(popt[1])
+    Verschiebung.append(popt[1]*3e-2 - vErde)
     VerschiebungError.append(np.sqrt(np.diag(pcov))[1])
 
-popt, pcov = curve_fit(sin, DateTable, Verschiebung, p0=[-0.5, 6300], maxfev=10000)
-print(popt)
-XValues = np.linspace(min(DateTable), max(DateTable), 10000)
+
+XValues = np.linspace(min(ModZeitVerschiebung), max(ModZeitVerschiebung), 1000)
+popt, pcov = curve_fit(sin, ModZeitVerschiebung, Verschiebung, p0=[1, 1, 1], maxfev=10000)
 plt.plot(XValues, sin(XValues, *popt))
-plt.errorbar(DateTable, Verschiebung, yerr=VerschiebungError, fmt='.', color='crimson', capsize=3, linestyle='none')
+plt.errorbar(ModZeitVerschiebung, Verschiebung, yerr=VerschiebungError, fmt='.', color='crimson', capsize=3, linestyle='none')
 plt.grid()
 plt.xlabel('Datum')
 plt.ylabel('Verschiebung (Angström)')
