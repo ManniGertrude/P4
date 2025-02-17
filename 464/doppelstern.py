@@ -13,7 +13,7 @@ def linear(x, a, b):
     return a * x + b 
 
 def sin(x, a, b):
-    return abs(a * np.sin(2*np.pi*(x+b)/3.9600400))
+    return a *abs(np.sin(2*np.pi*(x+b)/3.9600400))
 
 DateTable = np.array(['2021-02-09T23:17:09', 
              '2021-02-11T19:28:29',
@@ -34,7 +34,8 @@ DateTable = np.array(['2021-02-09T23:17:09',
              '2021-11-09T22:24:17',
              '2021-12-20T21:15:02',
              '2021-12-21T00:35:31',
-             '2021-12-22T01:14:16'], dtype='datetime64[D]')
+             '2021-12-22T01:14:16'], 
+              dtype='datetime64[D]')
 
 ZeitVerschiebung = (DateTable - np.datetime64('2021-03-20T09:37:00')) / np.timedelta64(1, 'D')
 ModZeitVerschiebung = ZeitVerschiebung % 3.96004
@@ -113,15 +114,20 @@ vErde = -29800*np.cos(B)*np.sin(LE-L)
 XValues = np.linspace(min(ModZeitVerschiebung), max(ModZeitVerschiebung), 1000)
 Colortable = ['crimson', 'blue', 'green', 'purple']
 for i in range(4):
-    Verschiebung = abs((Linien[names1[i]]-Linie[i])*3e8/Linie[i]  - ((Linien[names2[i]]-Linie[i])*3e8/Linie[i]))
-    plt.errorbar(ModZeitVerschiebung, Verschiebung, elinewidth=0.1, linestyle='none', label = names1[i][:-1], color=Colortable[i], marker='x')
-    popt, pcov = curve_fit(sin, ModZeitVerschiebung, Verschiebung, p0=[1, 1], maxfev=10000)
-    plt.plot(XValues, sin(XValues, *popt), color=Colortable[i])
-    print(Verschiebung)
-plt.grid()
-plt.legend()
-plt.xlabel('Zeit in Tagen')
-plt.ylabel('Geschwindigkeit zueinander m/s')
-plt.savefig(f'{path}\\Verschiebung.png')
+    # Verschiebung = abs((Linien[names1[i]]-Linie[i])*3e8/Linie[i]  - ((Linien[names2[i]]-Linie[i])*3e8/Linie[i]))
+    # Verschiebung = abs((Linien[names1[i]]-Linien[names2[i]])*3e5/(0.5*(Linien[names1[i]]+Linien[names2[i]])))
+    # plt.errorbar(ModZeitVerschiebung, Verschiebung, elinewidth=0.1, linestyle='none', label = names1[i][:-1], color=Colortable[i], marker='x')
+    popt, pcov = curve_fit(sin, ModZeitVerschiebung, (Linien[names1[i]]-Linie[i])*3e8/Linie[i], p0=[1, 1], maxfev=10000)
+    plt.plot(XValues, sin(XValues, *popt), color='red')
+    popt, pcov = curve_fit(sin, ModZeitVerschiebung, (Linien[names2[i]]-Linie[i])*3e8/Linie[i], p0=[1, 1], maxfev=10000)
+    plt.plot(XValues, sin(XValues, *popt), color='blue')
+    plt.scatter(ModZeitVerschiebung, (Linien[names1[i]]-Linie[i])*3e8/Linie[i], color='red', label = 'v1')
+    plt.scatter(ModZeitVerschiebung, (Linien[names2[i]]-Linie[i])*3e8/Linie[i], color='blue', label = 'v2')
+    plt.grid()
+    plt.legend()
+    plt.xlabel('Zeit in Tagen')
+    plt.ylabel('Geschwindigkeit zueinander km/s')
+    plt.savefig(f'{path}\\Geschwindigkeiten {names1[i][:-1]}.pdf')
+    ax.cla()
 
 
