@@ -144,11 +144,11 @@ class nEDAR:
 	def export(self):
 		global spe,cal
 		global write
+		
 		if write==1:
-			f = open("output.dat","w")
+			f = open(f'464\\BAur\\output.dat',"w")
 			for i in range(len(spe)):
 				f.write(str(i)+"\t"+str(spe[i])+"\t"+str(cal[i])+"\n")
-
 window = Tk()
 window.title("nEDAR")
 nEDAR(window)

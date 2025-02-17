@@ -12,8 +12,8 @@ Lambda = [6383, 6402.2, 6416.3, 6678.3, 6752.8, 6871.3]
 def linear(x, a, b):
     return a * x + b 
 
-def sin(x, a, b, c):
-    return a * np.sin(2*np.pi*(x+b)/3.9600400) + c
+def sin(x, a, b):
+    return abs(a * np.sin(2*np.pi*(x+b)/3.9600400))
 
 DateTable = np.array(['2021-02-09T23:17:09', 
              '2021-02-11T19:28:29',
@@ -29,7 +29,6 @@ DateTable = np.array(['2021-02-09T23:17:09',
              '2021-09-09T00:43:39',
              '2021-09-23T00:39:23',
              '2021-10-07T23:04:47',
-             '2021-10-24T23:44:23',
              '2021-10-28T00:16:03',
              '2021-10-28T23:55:01',
              '2021-11-09T22:24:17',
@@ -54,26 +53,24 @@ L = np.arccos(y/np.cos(B))
 Index = -1
 for folder in os.listdir(f'{path}\\BAur'):
     Index += 1
-    LE = 2*np.pi*ZeitVerschiebung[Index]/365.25
-    vErde = -29.8*np.cos(B)*np.sin(LE-L)
     fig, ax = plt.subplots()
         
     Data = pd.read_csv(f'{path}\\BAur\\{folder}\\output.dat', sep='\t', names=['x', 'b', 'y'])[:742]
-    # ax.plot(Data['x'], Data['y'], label=folder)
-
+    # ax.plot(Data['x'], Data['y'], label=f'{folder} (Original)')
+    Dataf = Data
     Maxima = []
     for i in range(6):
-        Maxima.append(Data['x'][Data['y'].idxmax()])
-        mask = ~((Data['x'] > Maxima[i] - 10) & (Data['x'] < Maxima[i] + 10))
-        Data = Data[mask]
+        Maxima.append(Dataf['x'][Dataf['y'].idxmax()])
+        mask = ~((Dataf['x'] > Maxima[i] - 10) & (Dataf['x'] < Maxima[i] + 10))
+        Dataf = Dataf[mask]
         if i == 3:
-            # ax.plot(Data['x'][200:], Data['y'][200:], color='green')
-            mask = ~((Data['x'] > 200))
-            Data = Data[mask]
+            # ax.plot(Dataf['x'][150:], Dataf['y'][150:], color='green')
+            mask = ~((Dataf['x'] > 200))
+            Dataf = Dataf[mask]
 
     Maxima = np.sort(Maxima)
     
-    # ax.plot(Data['x'], Data['y'], label=folder, color='green')
+    # ax.plot(Dataf['x'], Dataf['y'], label=f'{folder} (Gefiltert)', color='green')
     # plt.legend()
     # plt.grid()
     # plt.xlabel('Kanalnummer')
@@ -81,8 +78,9 @@ for folder in os.listdir(f'{path}\\BAur'):
     # plt.savefig(f'{path}\\BAur\\{folder}\\output.pdf')
     # ax.cla()
     
+    
     popt, pcov = curve_fit(linear, Maxima, Lambda, p0=[1, 1])
-    R2score = 1- r2_score(Lambda, linear(np.array(Maxima), *popt))
+    R2score = 1 - r2_score(Lambda, linear(np.array(Maxima), *popt))
     # ax.plot(Maxima, linear(np.array(Maxima), *popt), label=f'{popt[0]:.4f} * x + {popt[1]:.0f} mit $R^2$ = 1 - {R2score:.2g}')
     # ax.plot(Maxima, Lambda, 'x', label=f'{folder} (Maxima)', color='crimson')
     # plt.legend()
@@ -90,18 +88,40 @@ for folder in os.listdir(f'{path}\\BAur'):
     # plt.ylabel('Wellenlänge (Angström)')
     # plt.xlabel('Kanalnummer')
     # plt.savefig(f'{path}\\BAur\\{folder}\\fit.pdf')
-    plt.close()
-    Verschiebung.append(popt[1]*3e-2 - vErde)
-    VerschiebungError.append(np.sqrt(np.diag(pcov))[1])
+    # ax.cla() 
+
+    # ax.plot(linear(Data['x'], *popt), Data['b'], label=f'{folder}')
+    # plt.legend()
+    # plt.grid()
+    # plt.xlabel('Wellenlänge in Angström')
+    # plt.ylabel('Counts')
+    # plt.savefig(f'{path}\\BAur\\{folder}\\Spektrum.pdf')
+    # plt.show()
+    # ax.cla()
 
 
+
+Linien = pd.read_csv(f'{path}\\Linien.csv', sep=',', names=['S11', 'S21', 'Fe1', 'Ha1', 'S12', 'S22', 'Fe2', 'Ha2'], skiprows=1)
+names1 = ['S11', 'S21', 'Fe1', 'Ha1']
+names2 = ['S12', 'S22', 'Fe2', 'Ha2']
+# Linie = [0,0,0,0] 
+# for j in range(4):
+#     Linie[j] = (np.sum(Linien[names1[j]])+np.sum(Linien[names2[j]]))/(len(Linien[names1[j]]) + len(Linien[names2[j]]))
+Linie = [6346, 6370.6, 6456, 6562.5]
+LE = 2*np.pi*ZeitVerschiebung/365.25
+vErde = -29800*np.cos(B)*np.sin(LE-L)
 XValues = np.linspace(min(ModZeitVerschiebung), max(ModZeitVerschiebung), 1000)
-popt, pcov = curve_fit(sin, ModZeitVerschiebung, Verschiebung, p0=[1, 1, 1], maxfev=10000)
-plt.plot(XValues, sin(XValues, *popt))
-plt.errorbar(ModZeitVerschiebung, Verschiebung, yerr=VerschiebungError, fmt='.', color='crimson', capsize=3, linestyle='none')
+Colortable = ['crimson', 'blue', 'green', 'purple']
+for i in range(4):
+    Verschiebung = abs((Linien[names1[i]]-Linie[i])*3e8/Linie[i]  - ((Linien[names2[i]]-Linie[i])*3e8/Linie[i]))
+    plt.errorbar(ModZeitVerschiebung, Verschiebung, elinewidth=0.1, linestyle='none', label = names1[i][:-1], color=Colortable[i], marker='x')
+    popt, pcov = curve_fit(sin, ModZeitVerschiebung, Verschiebung, p0=[1, 1], maxfev=10000)
+    plt.plot(XValues, sin(XValues, *popt), color=Colortable[i])
+    print(Verschiebung)
 plt.grid()
-plt.xlabel('Datum')
-plt.ylabel('Verschiebung (Angström)')
-plt.savefig(f'{path}\\Verschiebung.pdf')
+plt.legend()
+plt.xlabel('Zeit in Tagen')
+plt.ylabel('Geschwindigkeit zueinander m/s')
+plt.savefig(f'{path}\\Verschiebung.png')
 
 
