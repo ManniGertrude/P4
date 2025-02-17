@@ -43,6 +43,11 @@ Verschiebung = []
 VerschiebungError = []
 
 
+Linien = pd.read_csv(f'{path}\\Linien.csv', sep=',', names=['S11', 'S21', 'Fe1', 'Ha1', 'S12', 'S22', 'Fe2', 'Ha2'], skiprows=1)
+names1 = ['S11', 'S21', 'Fe1', 'Ha1']
+names2 = ['S12', 'S22', 'Fe2', 'Ha2']
+
+
 delta = np.deg2rad(44.9475)
 alpha = 1.56658814
 epsilon = np.deg2rad(23)
@@ -50,6 +55,7 @@ y = np.cos(delta)*np.cos(alpha)
 z = np.cos(epsilon)*np.sin(delta)-np.sin(epsilon)*np.cos(delta)*np.sin(alpha)
 B = np.arcsin(z)
 L = np.arccos(y/np.cos(B))
+
 
 Index = -1
 for folder in os.listdir(f'{path}\\BAur'):
@@ -91,20 +97,22 @@ for folder in os.listdir(f'{path}\\BAur'):
     # plt.savefig(f'{path}\\BAur\\{folder}\\fit.pdf')
     # ax.cla() 
 
-    # ax.plot(linear(Data['x'], *popt), Data['b'], label=f'{folder}')
-    # plt.legend()
-    # plt.grid()
-    # plt.xlabel('Wellenlänge in Angström')
-    # plt.ylabel('Counts')
-    # plt.savefig(f'{path}\\BAur\\{folder}\\Spektrum.pdf')
+    ax.errorbar(linear(Data['x'], *popt), Data['b'], yerr=np.sqrt(Data['b']), label=f'{folder}')
+    for k in range(4):
+        ax.axvline(x=Linien[names1[k]][Index], color = 'red', linestyle='--', alpha=0.5)
+        ax.axvline(x=Linien[names2[k]][Index], color = 'green', linestyle='--', alpha=0.5)
+    plt.legend(loc='upper right')
+    plt.grid()
+    plt.xlabel('Wellenlänge in Angström', fontsize=12)
+    plt.ylabel('Intensität', fontsize=12)
+    plt.title(f'Intenistätsspektrum von {folder.replace("-"," ")}', fontsize=14)
+    plt.savefig(f'{path}\\BAur\\{folder}\\Spektrum.pdf')
     # plt.show()
-    # ax.cla()
+    ax.cla()
 
 
 
-Linien = pd.read_csv(f'{path}\\Linien.csv', sep=',', names=['S11', 'S21', 'Fe1', 'Ha1', 'S12', 'S22', 'Fe2', 'Ha2'], skiprows=1)
-names1 = ['S11', 'S21', 'Fe1', 'Ha1']
-names2 = ['S12', 'S22', 'Fe2', 'Ha2']
+
 # Linie = [0,0,0,0] 
 # for j in range(4):
 #     Linie[j] = (np.sum(Linien[names1[j]])+np.sum(Linien[names2[j]]))/(len(Linien[names1[j]]) + len(Linien[names2[j]]))
@@ -114,20 +122,19 @@ vErde = -29800*np.cos(B)*np.sin(LE-L)
 XValues = np.linspace(min(ModZeitVerschiebung), max(ModZeitVerschiebung), 1000)
 Colortable = ['crimson', 'blue', 'green', 'purple']
 for i in range(4):
-    # Verschiebung = abs((Linien[names1[i]]-Linie[i])*3e8/Linie[i]  - ((Linien[names2[i]]-Linie[i])*3e8/Linie[i]))
-    # Verschiebung = abs((Linien[names1[i]]-Linien[names2[i]])*3e5/(0.5*(Linien[names1[i]]+Linien[names2[i]])))
-    # plt.errorbar(ModZeitVerschiebung, Verschiebung, elinewidth=0.1, linestyle='none', label = names1[i][:-1], color=Colortable[i], marker='x')
-    popt, pcov = curve_fit(sin, ModZeitVerschiebung, (Linien[names1[i]]-Linie[i])*3e8/Linie[i], p0=[1, 1], maxfev=10000)
-    plt.plot(XValues, sin(XValues, *popt), color='red')
-    popt, pcov = curve_fit(sin, ModZeitVerschiebung, (Linien[names2[i]]-Linie[i])*3e8/Linie[i], p0=[1, 1], maxfev=10000)
-    plt.plot(XValues, sin(XValues, *popt), color='blue')
-    plt.scatter(ModZeitVerschiebung, (Linien[names1[i]]-Linie[i])*3e8/Linie[i], color='red', label = 'v1')
-    plt.scatter(ModZeitVerschiebung, (Linien[names2[i]]-Linie[i])*3e8/Linie[i], color='blue', label = 'v2')
+    Verschiebung = abs((Linien[names1[i]]-Linie[i])*3e8/Linie[i]  - ((Linien[names2[i]]-Linie[i])*3e8/Linie[i]))
+    VerschiebungErr = np.sqrt((0.1*3e8/Linie[i])**2 + (0.1*(Linien[names1[i]]-Linie[i])*3e8/Linie[i]**2)**2)
+    plt.errorbar(ModZeitVerschiebung, Verschiebung, yerr=VerschiebungErr, elinewidth=0.1, linestyle='none', label = names1[i][:-1], color=Colortable[i], marker='x')
+    popt, pcov = curve_fit(sin, ModZeitVerschiebung, Verschiebung, sigma=VerschiebungErr, absolute_sigma=True, p0=[1, 1], maxfev=10000)
+    plt.plot(XValues, sin(XValues, *popt), color = Colortable[i],)
     plt.grid()
     plt.legend()
     plt.xlabel('Zeit in Tagen')
     plt.ylabel('Geschwindigkeit zueinander km/s')
-    plt.savefig(f'{path}\\Geschwindigkeiten {names1[i][:-1]}.pdf')
+    plt.savefig(f'{path}\\Verschiebung{names1[i][:-1]}.pdf')
     ax.cla()
+    chi2red = np.sum(((Verschiebung - sin(ModZeitVerschiebung, *popt))**2)/VerschiebungErr**2)/(len(ModZeitVerschiebung)-2)
+    print(popt, np.sqrt(np.diag(pcov)))
+    print(chi2red)
 
 
