@@ -9,6 +9,10 @@ path = os.path.dirname(os.path.abspath(__file__))
 
 Lambda = [6383, 6402.2, 6416.3, 6678.3, 6752.8, 6871.3]
 
+def Printer(Temp):
+    Temp = Temp.replace('.', ',')
+    print(Temp)
+
 def linear(x, a, b):
     return a * x + b 
 
@@ -63,7 +67,7 @@ for folder in os.listdir(f'{path}\\BAur'):
     fig, ax = plt.subplots()
         
     Data = pd.read_csv(f'{path}\\BAur\\{folder}\\output.dat', sep='\t', names=['x', 'b', 'y'])[:742]
-    # ax.plot(Data['x'], Data['y'], label=f'{folder} (Original)')
+    ax.plot(Data['x'], Data['y'], label=f'{folder} (Original)')
     Dataf = Data
     Maxima = []
     for i in range(6):
@@ -71,32 +75,34 @@ for folder in os.listdir(f'{path}\\BAur'):
         mask = ~((Dataf['x'] > Maxima[i] - 10) & (Dataf['x'] < Maxima[i] + 10))
         Dataf = Dataf[mask]
         if i == 3:
-            # ax.plot(Dataf['x'][150:], Dataf['y'][150:], color='green')
+            ax.plot(Dataf['x'][150:], Dataf['y'][150:], color='green')
             mask = ~((Dataf['x'] > 200))
             Dataf = Dataf[mask]
 
     Maxima = np.sort(Maxima)
     
-    # ax.plot(Dataf['x'], Dataf['y'], label=f'{folder} (Gefiltert)', color='green')
-    # plt.legend()
-    # plt.grid()
-    # plt.xlabel('Kanalnummer')
-    # plt.ylabel('Counts')
-    # plt.savefig(f'{path}\\BAur\\{folder}\\output.pdf')
-    # ax.cla()
+    ax.plot(Dataf['x'], Dataf['y'], label=f'{folder} (Gefiltert)', color='green')
+    plt.legend()
+    plt.grid()
+    plt.xlabel('Kanalnummer')
+    plt.ylabel('Counts')
+    plt.savefig(f'{path}\\BAurOut\\output{folder}.pdf')
+    ax.cla()
     
     
     popt, pcov = curve_fit(linear, Maxima, Lambda, p0=[1, 1])
     R2score = 1 - r2_score(Lambda, linear(np.array(Maxima), *popt))
-    # ax.plot(Maxima, linear(np.array(Maxima), *popt), label=f'{popt[0]:.4f} * x + {popt[1]:.0f} mit $R^2$ = 1 - {R2score:.2g}')
-    # ax.plot(Maxima, Lambda, 'x', label=f'{folder} (Maxima)', color='crimson')
-    # plt.legend()
-    # plt.grid()
-    # plt.ylabel('Wellenlänge (Angström)')
-    # plt.xlabel('Kanalnummer')
-    # plt.savefig(f'{path}\\BAur\\{folder}\\fit.pdf')
-    # ax.cla() 
-
+    ax.plot(Maxima, linear(np.array(Maxima), *popt), label=f'{popt[0]:.4f} * x + {popt[1]:.0f} mit $R^2$ = 1 - {R2score:.2g}')
+    ax.plot(Maxima, Lambda, 'x', label=f'{folder} (Maxima)', color='crimson')
+    plt.legend()
+    plt.grid()
+    plt.ylabel('Wellenlänge (Angström)')
+    plt.xlabel('Kanalnummer')
+    plt.savefig(f'{path}\\BAurOut\\fit{folder}.pdf')
+    ax.cla() 
+    Error = np.sqrt(np.diag(pcov))
+    # Printer(f'{Index+1} & {popt[0]:.5f} $\pm$ {Error[0]:.5f} & {popt[1]:.2f} $\pm$ {Error[1]:.2g} & {1-R2score:.6f} \\\\')
+    
     ax.errorbar(linear(Data['x'], *popt), Data['b'], yerr=np.sqrt(Data['b']), label=f'{folder}')
     for k in range(4):
         ax.axvline(x=Linien[names1[k]][Index], color = 'red', linestyle='--', alpha=0.5)
@@ -106,17 +112,13 @@ for folder in os.listdir(f'{path}\\BAur'):
     plt.xlabel('Wellenlänge in Angström', fontsize=12)
     plt.ylabel('Intensität', fontsize=12)
     plt.title(f'Intenistätsspektrum von {folder.replace("-"," ")}', fontsize=14)
-    plt.savefig(f'{path}\\BAur\\{folder}\\Spektrum.pdf')
-    # plt.show()
+    plt.savefig(f'{path}\\BAurOut\\Spektrum{folder}.pdf')
+    plt.show()
     ax.cla()
 
 
 
-
-# Linie = [0,0,0,0] 
-# for j in range(4):
-#     Linie[j] = (np.sum(Linien[names1[j]])+np.sum(Linien[names2[j]]))/(len(Linien[names1[j]]) + len(Linien[names2[j]]))
-Linie = [6346, 6370.6, 6456, 6562.5]
+Linie = [6347.1, 6371.4, 6456.4, 6562.8]
 LE = 2*np.pi*ZeitVerschiebung/365.25
 vErde = -29800*np.cos(B)*np.sin(LE-L)
 XValues = np.linspace(min(ModZeitVerschiebung), max(ModZeitVerschiebung), 1000)
@@ -131,10 +133,12 @@ for i in range(4):
     plt.legend()
     plt.xlabel('Zeit in Tagen')
     plt.ylabel('Geschwindigkeit zueinander km/s')
-    plt.savefig(f'{path}\\Verschiebung{names1[i][:-1]}.pdf')
+    plt.savefig(f'{path}\\BAurOut\\Verschiebung{names1[i][:-1]}.pdf')
     ax.cla()
     chi2red = np.sum(((Verschiebung - sin(ModZeitVerschiebung, *popt))**2)/VerschiebungErr**2)/(len(ModZeitVerschiebung)-2)
-    print(popt, np.sqrt(np.diag(pcov)))
-    print(chi2red)
+    # print(popt, np.sqrt(np.diag(pcov)))
+    # print(chi2red)
 
+for i in range(len(Linien)):
+    Printer(f'{i+1} & {Linien["Ha1"][i]:.1f} & {Linien["Ha2"][i]:.1f} & {Linien["S11"][i]:.1f} & {Linien["S12"][i]:.1f} & {Linien["S21"][i]:.1f} &  {Linien["S22"][i]:.1f} & {Linien["Fe1"][i]:.1f} & {Linien["Fe2"][i]:.1f} \\\\')
 
