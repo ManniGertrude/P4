@@ -113,7 +113,7 @@ for folder in os.listdir(f'{path}\\BAur'):
     plt.ylabel('Intensität', fontsize=12)
     plt.title(f'Intenistätsspektrum von {folder.replace("-"," ")}', fontsize=14)
     plt.savefig(f'{path}\\BAurOut\\Spektrum{folder}.pdf')
-    plt.show()
+    # plt.show()
     ax.cla()
 
 
@@ -125,7 +125,7 @@ XValues = np.linspace(min(ModZeitVerschiebung), max(ModZeitVerschiebung), 1000)
 Colortable = ['crimson', 'blue', 'green', 'purple']
 for i in range(4):
     Verschiebung = abs((Linien[names1[i]]-Linie[i])*3e8/Linie[i]  - ((Linien[names2[i]]-Linie[i])*3e8/Linie[i]))
-    VerschiebungErr = np.sqrt((0.1*3e8/Linie[i])**2 + (0.1*(Linien[names1[i]]-Linie[i])*3e8/Linie[i]**2)**2)
+    VerschiebungErr = np.sqrt((0.5*3e8/Linie[i])**2 + (0.05*(Linien[names1[i]]-Linie[i])*3e8/Linie[i]**2)**2)
     plt.errorbar(ModZeitVerschiebung, Verschiebung, yerr=VerschiebungErr, elinewidth=0.1, linestyle='none', label = names1[i][:-1], color=Colortable[i], marker='x')
     popt, pcov = curve_fit(sin, ModZeitVerschiebung, Verschiebung, sigma=VerschiebungErr, absolute_sigma=True, p0=[1, 1], maxfev=10000)
     plt.plot(XValues, sin(XValues, *popt), color = Colortable[i],)
@@ -139,6 +139,6 @@ for i in range(4):
     # print(popt, np.sqrt(np.diag(pcov)))
     # print(chi2red)
 
-for i in range(len(Linien)):
-    Printer(f'{i+1} & {Linien["Ha1"][i]:.1f} & {Linien["Ha2"][i]:.1f} & {Linien["S11"][i]:.1f} & {Linien["S12"][i]:.1f} & {Linien["S21"][i]:.1f} &  {Linien["S22"][i]:.1f} & {Linien["Fe1"][i]:.1f} & {Linien["Fe2"][i]:.1f} \\\\')
+# for i in range(len(Linien)):
+#     Printer(f'{i+1} & {Linien["Ha1"][i]:.1f} & {Linien["Ha2"][i]:.1f} & {Linien["S11"][i]:.1f} & {Linien["S12"][i]:.1f} & {Linien["S21"][i]:.1f} &  {Linien["S22"][i]:.1f} & {Linien["Fe1"][i]:.1f} & {Linien["Fe2"][i]:.1f} \\\\')
 
