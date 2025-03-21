@@ -172,7 +172,7 @@ for i in range(4):
     ax.cla()
     chi2red = np.sum(((Verschiebung - sin(ModZeitVerschiebung, *popt))**2)/VerschiebungErr**2)/(len(ModZeitVerschiebung)-2)
     Error = np.sqrt(np.diag(pcov))
-    # Printer(f'{names1[i][:-1]} & {popt[0]:.1f} $\pm$ {Error[0]:.1f} & {popt[1]%3.96004:.3f} $\pm$ {Error[1]:.3f} & {chi2red:.3f} \\\\')
+    Printer(f'{names1[i][:-1]} & {popt[0]:.1f} $\pm$ {Error[0]:.1f} & {popt[1]%3.96004:.3f} $\pm$ {Error[1]:.3f} & {chi2red:.3f} \\\\')
 
 def Sinus(x, a, b):
     return a *np.sin(np.deg2rad(76.8))*np.sin(2*np.pi*(x+b)/3.9600400)
